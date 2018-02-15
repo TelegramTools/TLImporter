@@ -1,7 +1,9 @@
 <p align="center">
   <img src="https://github.com/ferferga/TLImporter/raw/master/images/Intro.png">
  </p>
-# TLImporter - Telegram Chat Importer 
+
+# TLImporter - Telegram Chat Importer
+
 ## A tiny app that will import your chats from WhatsApp or other third-party services into Telegram
 
 This app aims to import into Telegram your conversations from WhatsApp or other services, keeping the original structure. It works by reading a _txt_ file (obtained in your old chat provider first) and looking for the messages sent by each one of both partners. The app will ask you to log in two Telegram's users ("User 1" and "User 2") in order to import each message, following their original structure.
