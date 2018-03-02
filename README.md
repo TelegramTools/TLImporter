@@ -8,17 +8,25 @@
 
 This app will import your conversations from WhatsApp or other services into Telegram, keeping their original structure. After logging in, both you and your partner's Telegram accounts in Telegram Chat Importer, it will read a _txt_ file (obtained in your old chat provider first), and then, look for who has sent each message and send it to Telegram. If a message has been sent to your partner (or viceversa) in the original conversation, it will appear as if you have sent it in Telegram. Easy!
 
+Briefly, Telegram Chat Importer turns your plaintext conversations like this:
+
+![](/images/txt.PNG)
+
+Into this:
+
+![](/images/ImportedChat.PNG)
+
 ## Downloads
 
 (In construction)
 
-## How does it work?
+## How to use?
 
-You can check the full documentation, examples and a detailed guide in [the wiki](https://github.com/ferferga/TLImporter/wiki/Documentation)
+Easy! Start over [here](https://github.com/ferferga/TLImporter/wiki/Getting-your-chats-from-third-party-services) and follow that simple guide. You will be a master using the app in seconds!
 
-## How to build
+## Documentation
 
-(In construction)
+You can check the full documentation, examples, building instructions, FAQs and a detailed guide in [the wiki](https://github.com/ferferga/TLImporter/wiki/Getting-your-chats-from-third-party-services)
 
 ## Credits
 
