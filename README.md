@@ -28,6 +28,8 @@ You can check the full documentation, examples, building instructions, FAQs and 
 
 ## Credits
 
-This couldn't be possible without [TLSharp](https://github.com/sochix/TLSharp), by sochix, and a also [TelegramClient](https://github.com/vik-borisov/TelegramClient) by vik-borisov. They both helped me during the coding of the app, but I finally went with TLSharp for the final release of this app
+This couldn't be possible without [TLSharp](https://github.com/sochix/TLSharp), by sochix, and a also [TelegramClient](https://github.com/vik-borisov/TelegramClient) by vik-borisov. They both helped me during the coding of the app, but I finally went with TLSharp for the final release of this app.
+
+Also, huge acknowledgements to Telegram for making such a great messenger!
 
 **Please, give credits to me and all the original authors when using some parts of their hard work in your own projects**
