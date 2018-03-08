@@ -4,7 +4,7 @@
 
 # TLImporter - Telegram Chat Importer
 
-This app will import your conversations from WhatsApp or other services into Telegram, keeping their original structure. After logging in, both you and your partner's Telegram accounts in Telegram Chat Importer, it will read a _txt_ file (obtained in your old chat provider first), and then, look for who has sent each message and send it to Telegram. If a message has been sent to your partner (or viceversa) in the original conversation, it will appear as if you have sent it in Telegram. Easy!
+This app will import your conversations from WhatsApp or other services into Telegram, keeping their original structure. It will read a _txt_ file (obtained in your old chat provider first), and then, look for who has sent each message and send it to two Telegram's accounts. If a message has been sent to your partner (or viceversa) in the original conversation, it will appear as if you have sent it in Telegram. Easy!
 
 Briefly, Telegram Chat Importer turns your exported plaintext conversations like this:
 
@@ -28,4 +28,6 @@ You can check the full documentation, examples, building instructions, FAQs and 
 
 ## Credits
 
-(Construction)
+This couldn't be possible without [TLSharp](https://github.com/sochix/TLSharp), by sochix, and a also [TelegramClient](https://github.com/vik-borisov/TelegramClient) by vik-borisov. They both helped me during the coding of the app, but I finally went with TLSharp for the final release of this app
+
+**Please, give credits to me and all the original authors when using some parts of their hard work in your own projects**
