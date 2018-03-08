@@ -16,7 +16,7 @@ Into this:
 
 ## Downloads
 
-(In construction)
+You can always find the latest version of the app in the [Releases tab](https://github.com/ferferga/TLImporter/releases)
 
 ## How to use?
 
