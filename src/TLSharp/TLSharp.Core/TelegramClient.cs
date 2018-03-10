@@ -72,7 +72,7 @@ namespace TLSharp.Core
                 var request = new TLRequestInitConnection()
                 {
                     ApiId = _apiId,
-                    AppVersion = ", TLImporter 2.1.0",
+                    AppVersion = ", TLImporter 2.1.1",
                     DeviceModel = "PC",
                     LangCode = "en",
                     Query = config,
