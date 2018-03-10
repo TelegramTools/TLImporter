@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/ferferga/TLImporter/raw/master/images/Intro.png">
+  <img src="https://github.com/TelegramTools/TLImporter/raw/master/images/Intro.png">
  </p>
 
 # TLImporter - Telegram Chat Importer
@@ -16,15 +16,15 @@ Into this:
 
 ## Downloads
 
-You can always find the latest version of the app in the [Releases tab](https://github.com/ferferga/TLImporter/releases)
+You can always find the latest version of the app in the [Releases tab](https://github.com/TelegramTools/TLImporter/releases)
 
 ## How to use?
 
-Easy! Start over [here](https://github.com/ferferga/TLImporter/wiki/Getting-your-chats-from-third-party-services) and follow that simple guide. You will be a master using the app in seconds!
+Easy! Start over [here](https://github.com/TelegramTools/TLImporter/wiki/Getting-your-chats-from-third-party-services) and follow that simple guide. You will be a master using the app in seconds!
 
 ## Documentation
 
-You can check the full documentation, examples, building instructions, FAQs and a detailed guide in [the wiki](https://github.com/ferferga/TLImporter/wiki/Getting-your-chats-from-third-party-services)
+You can check the full documentation, examples, building instructions, FAQs and a detailed guide in [the wiki](https://github.com/TelegramTools/TLImporter/wiki/Getting-your-chats-from-third-party-services)
 
 ## Credits
 
