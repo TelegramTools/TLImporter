@@ -109,7 +109,7 @@ namespace TLImporter
                         ConfirmationConfirmed = false;
                         Messaging.MessageUser2("BEGGINING OF THE IMPORT OF " + filePath, false).Wait();
                         TextHandler.ParseStrings();
-                        Messaging.MessageUser2("END OF THE IMPORT OF " + filePath + "\n\nA total of " + TextHandler.TotalCount + " messages were imported successfully.\n\n" + NameUser1 + " has " + TextHandler.CountedLines1 + " imported messages.\n" + NameUser2 + " has " + TextHandler.CountedLines2 + " imported messages.\n\nImported using Telegram Chat Importer. Available at https://github.com/ferferga/TLImporter", false).Wait();
+                        Messaging.MessageUser2("END OF THE IMPORT OF " + filePath + "\n\nA total of " + TextHandler.TotalCount + " messages were imported successfully.\n\n" + NameUser1 + " has " + TextHandler.CountedLines1 + " imported messages.\n" + NameUser2 + " has " + TextHandler.CountedLines2 + " imported messages.\n\nImported using Telegram Chat Importer. Available at https://github.com/TelegramTools/TLImporter", false).Wait();
                         if (UploadTXT)
                         {
                             Messaging.UploadFile().Wait();
@@ -125,7 +125,7 @@ namespace TLImporter
                     }
                 }
             }
-            Console.WriteLine("\n\nThank you for using this app. If you like it, please, star the GitHub repository :D at https://github.com/ferferga/TLImporter \n\nPress ENTER to exit.");
+            Console.WriteLine("\n\nThank you for using this app. If you like it, please, star the GitHub repository :D at https://github.com/TelegramTools/TLImporter \n\nPress ENTER to exit.");
             Console.ReadLine();
             Environment.Exit(0);
         }
