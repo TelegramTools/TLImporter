@@ -51,7 +51,7 @@ namespace TLImporter
             Auth.AuthUser2().Wait();
             while (!AllIsImported)
             {
-                Console.WriteLine("\nNow, please, type the complete path of the TXT file do you want to import. You can also drag-and-drop it here.\n\nFILEPATH MUST NOT INCLUDE SPACES");
+                Console.WriteLine("\nNow, please, type the complete path of the TXT file you want to import. You can also drag-and-drop it here.\n\nFILEPATH MUST NOT INCLUDE SPACES");
                 filePath = Console.ReadLine();
                 while (filePath.Contains(" "))
                 {
