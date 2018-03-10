@@ -44,6 +44,7 @@ namespace TLImporter
             {
                 File.Delete(@"sessionUser2.dat");
             }
+            Console.WriteLine("Take in mind that this app might trigger flood limits in your account. See https://github.com/ferferga/TLImporter/wiki/Before-starting for more information.");
             Console.WriteLine("\n\nYou must log in two users in order to import a conversation.");
             Console.WriteLine("Logging in User 1...");
             Auth.AuthUser1().Wait();
