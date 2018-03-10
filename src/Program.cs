@@ -44,7 +44,7 @@ namespace TLImporter
             {
                 File.Delete(@"sessionUser2.dat");
             }
-            Console.WriteLine("Take in mind that this app might trigger flood limits in your account. See https://github.com/ferferga/TLImporter/wiki/Before-starting for more information.");
+            Console.WriteLine("Take in mind that this app might trigger flood limits in your account. See https://github.com/TelegramTools/TLImporter/wiki/Before-starting for more information.");
             Console.WriteLine("\n\nYou must log in two users in order to import a conversation.");
             Console.WriteLine("Logging in User 1...");
             Auth.AuthUser1().Wait();
@@ -66,7 +66,7 @@ namespace TLImporter
                 CheckUsers();
                 while (!ImporterApp.FileIsValid)
                 {
-                    Console.WriteLine("We couldn't find " + NameUser1 + " and " + NameUser2 + " in this file.\n\nPlease, check the documentation at https://github.com/ferferga/TLImporter to make sure that you are doing eveything right.\n\n");
+                    Console.WriteLine("We couldn't find " + NameUser1 + " and " + NameUser2 + " in this file.\n\nPlease, check the documentation at https://github.com/TelegramTools/TLImporter to make sure that you are doing eveything right.\n\n");
                     AskConfirmation("Do you want to try again or close the app? (Yes, for trying again. No, for closing the app [y/n]", false, false, false);
                     if (!ConfirmationConfirmed)
                     {
