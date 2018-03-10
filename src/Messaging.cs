@@ -40,6 +40,13 @@ namespace TLImporter
                     Console.WriteLine(confirmationMessage + ImporterApp.NameUser1 + ": " + MessageToSend1);
                 }                
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Unknown error while sending a message to User 1. Here is the full exception code:\n\n" + ex);
+                Console.WriteLine("\n\nPress ENTER to try it again. If you receive another error after trying again, please, post the full exception code in a new issue in GitHub, describing the issue as much as possible.");
+                Console.ReadLine();
+                MessageUser1(MessageToSend1, true).Wait();
+            }
             return;
         }
         internal static async Task MessageUser2(string MessageToSend2, bool printresult)
@@ -65,6 +72,13 @@ namespace TLImporter
                 {
                     Console.WriteLine(confirmationMessage + ImporterApp.NameUser2 + ": " + MessageToSend2);
                 }                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Unknown error while sending a message to user 2. Here is the full exception code:\n\n" + ex);
+                Console.WriteLine("\n\nPress ENTER to try it again. If you receive another error after trying again, please, post the full exception code in a new issue in GitHub, describing the issue as much as possible.");
+                Console.ReadLine();
+                MessageUser2(MessageToSend2, true).Wait();
             }
             return;
         }
@@ -94,24 +108,48 @@ namespace TLImporter
                 Thread.Sleep(ex.TimeToWait);
                 await client1.UploadFile("Imported_Chat.txt", new StreamReader(ImporterApp.filePath));
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Unknown error while attaching the file. Here is the full exception code:\n\n" + ex);
+                Console.WriteLine("\n\nPress ENTER to try it again. If you receive another error after trying again, please, post the full exception code in a new issue in GitHub, describing the issue as much as possible.");
+                Console.ReadLine();
+                UploadFile().Wait();
+            }
             return;
         }
         internal static async Task MarkMessagesAsRead()
         {
-            Console.WriteLine("Marking messages as read....");
-            var client1 = Auth.Client1();
-            var client2 = Auth.Client2();
-            await client1.ConnectAsync();
-            var target2 = new TLInputPeerUser{UserId = User2Id};
-            var readed2 = new TLRequestReadHistory {Peer = target2};
-            await client1.SendRequestAsync<TLAffectedMessages>(readed2);
-            Console.WriteLine("Marked messages from " + ImporterApp.NameUser2 + " as read in " + Auth.phone1 + " account.");            
-            await client2.ConnectAsync();
-            var target1 = new TLInputPeerUser { UserId = User1Id };
-            var readed1 = new TLRequestReadHistory { Peer = target1 };
-            await client2.SendRequestAsync<TLAffectedMessages>(readed1);
-            Console.WriteLine("Marked messages from " + ImporterApp.NameUser1 + " as read in " + Auth.phone2 + " account.");
+            try
+            {
+                Console.WriteLine("Marking messages as read....");
+                var client1 = Auth.Client1();
+                var client2 = Auth.Client2();
+                await client1.ConnectAsync();
+                var target2 = new TLInputPeerUser { UserId = User2Id };
+                var readed2 = new TLRequestReadHistory { Peer = target2 };
+                await client1.SendRequestAsync<TLAffectedMessages>(readed2);
+                Console.WriteLine("Marked messages from " + ImporterApp.NameUser2 + " as read in " + Auth.phone1 + " account.");
+                await client2.ConnectAsync();
+                var target1 = new TLInputPeerUser { UserId = User1Id };
+                var readed1 = new TLRequestReadHistory { Peer = target1 };
+                await client2.SendRequestAsync<TLAffectedMessages>(readed1);
+                Console.WriteLine("Marked messages from " + ImporterApp.NameUser1 + " as read in " + Auth.phone2 + " account.");
+            }
+            catch (FloodException ex)
+            {
+                string time;
+                time = ex.TimeToWait.ToString();
+                Console.WriteLine(floodlimit + time);
+                Thread.Sleep(ex.TimeToWait);
+                MarkMessagesAsRead().Wait();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Unknown error while marking messages as read. Here is the full exception code:\n\n" + ex);
+                Console.WriteLine("\n\nPress ENTER to try it again. If you receive another error after trying again, please, post the full exception code in a new issue in GitHub, describing the issue as much as possible.");
+                Console.ReadLine();
+                MarkMessagesAsRead().Wait();
+            }
             return;
-        }
         }
 }
