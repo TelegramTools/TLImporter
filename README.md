@@ -24,7 +24,7 @@ Easy! Start over [here](https://github.com/TelegramTools/TLImporter/wiki/Getting
 
 ## Documentation
 
-You can check the full documentation, examples, building instructions, FAQs and a detailed guide in [the wiki](https://github.com/TelegramTools/TLImporter/wiki/Getting-your-chats-from-third-party-services)
+You can check the full documentation, examples, building instructions, FAQs and a detailed guide in [the wiki](https://github.com/TelegramTools/TLImporter/wiki)
 
 ## Credits
 
