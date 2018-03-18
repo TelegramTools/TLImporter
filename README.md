@@ -5,6 +5,7 @@
 # TLImporter - Telegram Chat Importer
 
 This app will import your conversations from WhatsApp or other services (using a _txt_ file obtained from the chat provider) into Telegram. With TLImporter you can import your messages into your "Saved Messages" section or do it in a 1:1 format. That means that you will need to log in your partner's Telegram's account inside TLImporter and it will automatically send the corresponding messages to each other, keeping the original structure.
+
 Briefly, Telegram Chat Importer can turn your exported plaintext conversations into a 1:1 format like this:
 
 ![](/images/txt.PNG)
