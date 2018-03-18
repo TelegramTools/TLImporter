@@ -4,9 +4,8 @@
 
 # TLImporter - Telegram Chat Importer
 
-This app will import your conversations from WhatsApp or other services into Telegram, keeping their original structure. It will read a _txt_ file (obtained in your old chat provider first), and then, look for who has sent each message and send it to two Telegram's accounts. If a message has been sent to your partner (or viceversa) in the original conversation, it will appear as if you have sent it in Telegram. Easy!
-
-Briefly, Telegram Chat Importer turns your exported plaintext conversations like this:
+This app will import your conversations from WhatsApp or other services (using a _txt_ file obtained from the chat provider) into Telegram. With TLImporter you can import your messages into your "Saved Messages" section or do it in a 1:1 format. That means that you will need to log in your partner's Telegram's account inside TLImporter and it will automatically send the corresponding messages to each other, keeping the original structure.
+Briefly, Telegram Chat Importer can turn your exported plaintext conversations into a 1:1 format like this:
 
 ![](/images/txt.PNG)
 
@@ -20,7 +19,7 @@ You can always find the latest version of the app in the [Releases tab](https://
 
 ## How to use?
 
-Easy! Start over [here](https://github.com/TelegramTools/TLImporter/wiki/Getting-your-chats-from-third-party-services) and follow that simple guide. You will be a master using the app in seconds!
+Easy! Start over [here](https://github.com/TelegramTools/TLImporter/wiki/Getting-your-chats-from-third-party-services) and follow the steps in the guide. You will be a master using the app in seconds!
 
 ## Documentation
 
@@ -28,8 +27,8 @@ You can check the full documentation, examples, building instructions, FAQs and 
 
 ## Credits
 
-This couldn't be possible without [TLSharp](https://github.com/sochix/TLSharp), by sochix, and a also [TelegramClient](https://github.com/vik-borisov/TelegramClient) by vik-borisov. They both helped me during the coding of the app, but I finally went with TLSharp for the final release of this app.
+This couldn't be possible without [TLSharp](https://github.com/sochix/TLSharp), by sochix, and a also [TelegramClient](https://github.com/vik-borisov/TelegramClient) by vik-borisov. Both libraries helped me during the coding of the app, but I finally went with TLSharp for the final release of this app.
 
 Also, huge acknowledgements to Telegram for making such a great messenger!
 
-**Please, give credits to me and all the original authors when using some parts of their hard work in your own projects**
+**Give always credits to all the original authors and owners when using some parts of their hard work in your own projects**
