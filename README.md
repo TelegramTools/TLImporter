@@ -24,7 +24,11 @@ Easy! Start over [here](https://github.com/TelegramTools/TLImporter/wiki/Getting
 
 ## Documentation
 
-You can check the full documentation, examples, building instructions, FAQs and a detailed guide in [the wiki](https://github.com/TelegramTools/TLImporter/wiki)
+You can check the full documentation, examples, FAQs and a detailed guide in [the wiki](https://github.com/TelegramTools/TLImporter/wiki). **The wiki might be incoherent with this deprecated version. It will only contain instructions for app version 3.0 and onwards.**
+
+## Building instructions
+
+Check old C# app Building instructions [here](https://github.com/TelegramTools/TLImporter/blob/master/BUILD.md)
 
 ## Credits
 
