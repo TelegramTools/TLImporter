@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/TelegramTools/TLImporter/raw/master/images/Intro.png">
+  <img src="https://github.com/TelegramTools/TLImporter/raw/python/images/Intro.png">
  </p>
 
 # TLImporter - Telegram Chat Importer
@@ -28,7 +28,7 @@ You can check the full documentation, examples, building instructions, FAQs and 
 
 ## Credits
 
-This couldn't be possible without [TLSharp](https://github.com/sochix/TLSharp), by sochix, and a also [TelegramClient](https://github.com/vik-borisov/TelegramClient) by vik-borisov. Both libraries helped me during the coding of the app, but I finally went with TLSharp for the final release of this app.
+This couldn't be possible without [Telethon](https://github.com/LonamiWebs/Telethon), and his great creator, [Lonami](https://github.com/Lonami), who always was up to answering questions and helping in development. I'm so grateful for his patience :).
 
 Also, huge acknowledgements to Telegram for making such a great messenger!
 
