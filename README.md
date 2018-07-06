@@ -16,7 +16,9 @@ Into this:
 
 ## Downloads
 
-You can always find the latest version of the app in the [Releases tab](https://github.com/TelegramTools/TLImporter/releases)
+You can always find the latest version of the app in the [Releases tab](https://github.com/TelegramTools/TLImporter/releases).
+Binaries for Windows are included and bundled as an .exe executable (thanks to Pyinstaller!). If you want to use this python script in Mac or Linux, you will
+be able to, using the compiled binaries also included in the file you will get from the Releases Tab. Make sure that you have Python3 installed and also pip. Run this command: `pip install -r requirements.txt`.
 
 ## How to use?
 
@@ -29,6 +31,7 @@ You can check the full documentation, examples, building instructions, FAQs and 
 ## Credits
 
 This couldn't be possible without [Telethon](https://github.com/LonamiWebs/Telethon), and his great creator, [Lonami](https://github.com/Lonami), who always was up to answering questions and helping in development. I'm so grateful for his patience :).
+And a also without [PyInstaller](https://www.pyinstaller.org/) which I used to build the Windows binaries.
 
 Also, huge acknowledgements to Telegram for making such a great messenger!
 
