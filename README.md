@@ -32,7 +32,7 @@ Check old C# app Building instructions [here](https://github.com/TelegramTools/T
 
 ## Credits
 
-This couldn't be possible without [TLSharp](https://github.com/sochix/TLSharp), by sochix, and a also [TelegramClient](https://github.com/vik-borisov/TelegramClient) by vik-borisov. Both libraries helped me during the coding of the app, but I finally went with TLSharp for the final release of this app.
+This couldn't be possible without [TLSharp](https://github.com/sochix/TLSharp), by sochix.
 
 Also, huge acknowledgements to Telegram for making such a great messenger!
 
