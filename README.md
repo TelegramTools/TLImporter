@@ -34,7 +34,8 @@ You can check the full documentation, examples, building instructions, FAQs and 
 ## Credits
 
 This couldn't be possible without [Telethon](https://github.com/LonamiWebs/Telethon), and his great creator, [Lonami](https://github.com/Lonami), who always was up to answering questions and helping in development. I'm so grateful for his patience :).
-And a also without [PyInstaller](https://www.pyinstaller.org/) which I used to build the Windows binaries.
+
+And also without [PyInstaller](https://www.pyinstaller.org/) which I used to build the Windows binaries.
 
 Also, huge acknowledgements to Telegram for making such a great messenger!
 
