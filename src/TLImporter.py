@@ -175,8 +175,7 @@ def StartSecretMode():
     ChosenChat = PrintChatList()
     dialogs.clear()
     print("\n\nWaiting for a response from your partner...")
-    client1.add_event_handler(EventHandler, events.NewMessage(chats=ChosenChat, incoming=True)) #TO USE PRIOR 1.0 TELETHON VERSION
-    #client1.add_event_handler(EventHandler, events.NewMessage(chats=ChosenChat, incoming=True)) TO USE FORWARD 1.0 TELETHON VERSION
+    client1.add_event_handler(EventHandler, events.NewMessage(chats=ChosenChat, incoming=True))
     #client1.run_until_disconnected() TO USE FORWARD 1.0 TELETHON VERSION
     client1.idle() #TO USE PRIOR 1.0 TELETHON VERSION
     client1.connect()
