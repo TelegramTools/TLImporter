@@ -1,3 +1,8 @@
+##### THIS SCRIPT HAS BEEN MADE BY FERFERGA. PLEASE, DON'T CLAIM THAT IT'S YOURS.
+##### GIVE ALWAYS CREDITS TO ORIGINAL AUTHORS.
+#####
+##### THANKS FOR USING!
+
 import datetime
 import getpass
 import logging
@@ -6,8 +11,11 @@ import sqlite3
 import sys
 import time
 from os import mkdir
-import cryptg
-from cryptg import *
+try:
+    import cryptg
+    from cryptg import *
+except:
+    pass
 
 import progressbar  # progressbar2 module
 from telethon import TelegramClient, events
@@ -19,11 +27,11 @@ from telethon.utils import *
 from telethon.sessions import *
 import pyAesCrypt
 
-api_id = ##INSERT YOUR API ID HERE
-api_hash = ##INSERT YOUR APIHASH HERE
+api_id = YOUR_API_ID_HERE
+api_hash = 'YOUR_API_HASH_HERE'
 TLdevice_model = 'Desktop device'
 TLsystem_version = 'Console'
-TLapp_version = '- TLImporter 3.0.1'
+TLapp_version = '- TLImporter 3.0.2'
 TLlang_code = 'en'
 TLsystem_lang_code = 'en'
 SelfUser1 = None
@@ -54,11 +62,12 @@ Filename = None
 client2 = None
 dialogs = None
 ChosenChat = None
-password = ##THIS IS THE PASSWORD THAT WILL BE USED TO ENCRYPT DATABASES USING TLSecret. YOU MUST USE THE SAME PASSWORD IN THE RECEIVING APP AND TLSECRET.
+password = "PASSWORD_FOR_SECRET_MODE"
 bufferSize = 64 * 1024
 SecretMessage = None
 
-client1 = TelegramClient('User1', api_id, api_hash, device_model=TLdevice_model, system_version=TLsystem_version, app_version=TLapp_version, lang_code=TLlang_code, system_lang_code=TLsystem_lang_code)
+client1 = TelegramClient('User1', api_id, api_hash, device_model=TLdevice_model, system_version=TLsystem_version, app_version=TLapp_version, lang_code=TLlang_code, system_lang_code=TLsystem_lang_code, spawn_read_thread=False, update_workers=1)
+#client1 = TelegramClient('User1', api_id, api_hash, device_model=TLdevice_model, system_version=TLsystem_version, app_version=TLapp_version, lang_code=TLlang_code, system_lang_code=TLsystem_lang_code) TO USE FORWARD 1.0 TELETHON VERSION
 
 def sprint(string, *args, **kwargs):
     #Safe Print (handle UnicodeEncodeErrors on some terminals)
@@ -166,8 +175,11 @@ def StartSecretMode():
     ChosenChat = PrintChatList()
     dialogs.clear()
     print("\n\nWaiting for a response from your partner...")
-    client1.add_event_handler(EventHandler, events.NewMessage(chats=ChosenChat, incoming=True))
-    client1.run_until_disconnected()
+    client1.add_event_handler(EventHandler, events.NewMessage(chats=ChosenChat, incoming=True)) #TO USE PRIOR 1.0 TELETHON VERSION
+    #client1.add_event_handler(EventHandler, events.NewMessage(chats=ChosenChat, incoming=True)) TO USE FORWARD 1.0 TELETHON VERSION
+    #client1.run_until_disconnected() TO USE FORWARD 1.0 TELETHON VERSION
+    client1.idle() #TO USE PRIOR 1.0 TELETHON VERSION
+    client1.connect()
     pyAesCrypt.decryptFile("DB.aes", "TempDB.session", password, bufferSize)
     old_db = sqlite3.connect('TempDB.session')
     db = old_db.cursor()
@@ -188,8 +200,8 @@ def StartSecretMode():
                              system_version=TLsystem_version, app_version=TLapp_version, lang_code=TLlang_code,
                              system_lang_code=TLsystem_lang_code)
     client2.session.set_dc(List[0], List[1], List[2])
-    #client2.session.auth_key = AuthKey(data=List[3]) TO USE PRIOR 1.0 TELETHON VERSION
-    client2._sender.state.auth_key = AuthKey(data=List[3])
+    client2.session.auth_key = AuthKey(data=List[3]) #TO USE PRIOR 1.0 TELETHON VERSION
+    #client2._sender.state.auth_key = AuthKey(data=List[3])TO USE FORWARD 1.0 TELETHON VERSION
     List.clear()
     StartClient1()
     client1.remove_event_handler(EventHandler, events.NewMessage(chats=ChosenChat, incoming=True))
@@ -672,7 +684,7 @@ def ExportMessages():
     print("\nINFORMATION: Each 2000 messages, a pause of around 7 minutes will be done for reducing Telegram's flood limits.\nBe patient, the process will be still going on.\n")
     try:
         if SoloImporting:
-            user1 = client1.get_me()
+            user1 = SelfUser1
         else:
             try:
                 user2 = client1.get_input_entity(SelfUser2.phone)
