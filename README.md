@@ -1,9 +1,4 @@
-<p align="center">
-  <img src="https://github.com/TelegramTools/TLImporter/raw/python/images/Intro.png">
- </p>
-<p align="center">
-  <img src="https://github.com/TelegramTools/TLSecret/raw/master/images/SecretModeLabel.png">
- </p>
+# CURRENTLY WORKING ON GROUP CHAT IMPORT
 
 # TLImporter - Telegram Chat Importer
 
