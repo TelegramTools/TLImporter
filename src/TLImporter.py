@@ -1,4 +1,4 @@
-##### THIS SCRIPT HAS BEEN MADE BY FERFERGA. PLEASE, DON'T CLAIM THAT IT'S YOURS.
+##### THIS SCRIPT HAS BEEN ORIGINALLY DEVELOPED BY FERFERGA. PLEASE, DON'T CLAIM THAT IT'S SOLELY YOURS.
 ##### GIVE ALWAYS CREDITS TO ORIGINAL AUTHORS.
 #####
 ##### THANKS FOR USING!
@@ -13,7 +13,6 @@ import time
 from os import mkdir
 try:
     import cryptg
-    from cryptg import *
 except:
     pass
 
@@ -23,15 +22,15 @@ from telethon.errors import FloodWaitError
 from telethon.crypto import AuthKey
 from telethon.tl.functions.messages import *
 from telethon.tl.types import *
-from telethon.utils import *
 from telethon.sessions import *
+from telethon.utils import get_display_name
 import pyAesCrypt
 
 api_id = YOUR_API_ID_HERE
 api_hash = 'YOUR_API_HASH_HERE'
 TLdevice_model = 'Desktop device'
 TLsystem_version = 'Console'
-TLapp_version = '- TLImporter 3.0.2'
+TLapp_version = '- TLImporter 3.0.3'
 TLlang_code = 'en'
 TLsystem_lang_code = 'en'
 SelfUser1 = None
@@ -66,7 +65,7 @@ password = "PASSWORD_FOR_SECRET_MODE"
 bufferSize = 64 * 1024
 SecretMessage = None
 
-client1 = TelegramClient('User1', api_id, api_hash, device_model=TLdevice_model, system_version=TLsystem_version, app_version=TLapp_version, lang_code=TLlang_code, system_lang_code=TLsystem_lang_code, spawn_read_thread=False, update_workers=1)
+client1 = TelegramClient('User1', api_id, api_hash, device_model=TLdevice_model, system_version=TLsystem_version, app_version=TLapp_version, lang_code=TLlang_code, system_lang_code=TLsystem_lang_code, update_workers=1, spawn_read_thread=False)
 #client1 = TelegramClient('User1', api_id, api_hash, device_model=TLdevice_model, system_version=TLsystem_version, app_version=TLapp_version, lang_code=TLlang_code, system_lang_code=TLsystem_lang_code) TO USE FORWARD 1.0 TELETHON VERSION
 
 def sprint(string, *args, **kwargs):
@@ -86,7 +85,7 @@ def PrintChatList():
         while i is None:
             print("This is your chat list:\n\n")
             for i, dialog in enumerate(dialogs, start=1):
-                if get_display_name(dialog.entity) is "":
+                if get_display_name(dialog.entity) == "":
                     name = "Deleted Account"
                 elif isinstance(dialog.entity, InputPeerSelf):
                     name = "Chat with yourself (Saved Messages)"
@@ -140,8 +139,7 @@ def EventHandler(event):
     return
 
 def StartClient1():
-    global SelfUser1
-    global client1
+    global SelfUser1, client1
     try:
         client1.connect()
         if not client1.is_user_authorized():
@@ -154,8 +152,7 @@ def StartClient1():
     return
 
 def StartClient2():
-    global SelfUser2
-    global client2
+    global SelfUser2, client2
     try:
         client2.connect()
         if not client2.is_user_authorized():
@@ -183,12 +180,12 @@ def StartSecretMode():
     old_db = sqlite3.connect('TempDB.session')
     db = old_db.cursor()
     db.execute('SELECT * FROM sessions')
-    List = []
+    dblist = []
     for row in db:
-        List.append(row[0])
-        List.append(row[1])
-        List.append(row[2])
-        List.append(row[3])
+        dblist.append(row[0])
+        dblist.append(row[1])
+        dblist.append(row[2])
+        dblist.append(row[3])
     old_db.close()
     try:
         os.remove("DB.aes")
@@ -198,10 +195,10 @@ def StartSecretMode():
     client2 = TelegramClient(None, api_id, api_hash, device_model=TLdevice_model,
                              system_version=TLsystem_version, app_version=TLapp_version, lang_code=TLlang_code,
                              system_lang_code=TLsystem_lang_code)
-    client2.session.set_dc(List[0], List[1], List[2])
-    client2.session.auth_key = AuthKey(data=List[3]) #TO USE PRIOR 1.0 TELETHON VERSION
-    #client2._sender.state.auth_key = AuthKey(data=List[3])TO USE FORWARD 1.0 TELETHON VERSION
-    List.clear()
+    client2.session.set_dc(dblist[0], dblist[1], dblist[2])
+    client2.session.auth_key = AuthKey(data=dblist[3]) #TO USE PRIOR 1.0 TELETHON VERSION
+    #client2._sender.state.auth_key = AuthKey(data=dblist[3])TO USE FORWARD 1.0 TELETHON VERSION
+    dblist.clear()
     StartClient1()
     client1.remove_event_handler(EventHandler, events.NewMessage(chats=ChosenChat, incoming=True))
     client1.delete_messages(ChosenChat, SecretMessage.id, revoke=True)
@@ -209,8 +206,7 @@ def StartSecretMode():
     print("Secret Mode's Authentication done successfully!")
 
 def ChangeTimestampSettings():
-    global NoTimestamps
-    global EndDate
+    global NoTimestamps, EndDate
     while True:
         answer = None
         print()
@@ -244,7 +240,6 @@ def ChangeTimestampSettings():
                     break
         if (answer == "!C"):
             break
-            return
         if (answer == "!1"):
             if NoTimestamps:
                 NoTimestamps = False
@@ -330,16 +325,14 @@ def ChangeDatabaseSettings():
         return
 
 def HandleExceptions():
-    global SelfUser1
-    global peer
-    global SendDatabase
-    global SoloImporting
-    global RawLoopCount
-    global user1
-    global user2
+    global SelfUser1, SendDatabase, SoloImporting, RawLoopCount, user1, user2
     if not SoloImporting and RawLoopCount != 0:
         GetIncomingIdOfUser1(user1, RawLoopCount)
         GetIncomingIdOfUser2(user2, RawLoopCount)
+    if SoloImporting:
+        peer = "yourself"
+    else:
+        peer = SelfUser2.first_name
     answer = None
     print("\n\n")
     print(
@@ -439,8 +432,7 @@ def SendMessageClient2(*args, **kwargs):
         return SendMessageClient2(*args, **kwargs)
 
 def GetIncomingIdOfUser2(u, lim):
-    global ExceptionReached
-    global User1IDs
+    global ExceptionReached, User1IDs
     try:
         message = client1.get_messages(u, limit=lim)
         for msg in message:
@@ -464,8 +456,7 @@ def GetIncomingIdOfUser2(u, lim):
         return GetIncomingIdOfUser2(u, lim)
 
 def GetIncomingIdOfUser1(u, lim):
-    global ExceptionReached
-    global User2IDs
+    global ExceptionReached, User2IDs
     try:
         message = client2.get_messages(u, limit=lim)
         for msg in message:
@@ -501,7 +492,7 @@ def CreateTables():
     cursor.execute('''
     CREATE TABLE Version(AppName TEXT, AppVersion TEXT, CreationDate TEXT)''')
     db.commit()
-    date = str(datetime.datetime.today())
+    date = str(datetime.date.today())
     reg = ("TLImporter", "3.0", date)
     db.execute("INSERT INTO Version VALUES(?,?,?)", reg)
     db.commit()
@@ -520,10 +511,7 @@ def DBConnection(first, close):
         DBConnection(first, close)
 
 def CommitMessages(database):
-    global User1IDs
-    global User2IDs
-    global SelfUser1
-    global SelfUser2
+    global User1IDs, User2IDs, SelfUser1, SelfUser2
     try:
         database.commit()
     except:
@@ -548,17 +536,8 @@ def CommitMessages(database):
     return
 
 def CheckMessages():
-    global SoloImporting
-    global NameUser1
-    global NameUser2
-    global SelfUser1
-    global SelfUser2
-    global incorrectname
-    global LineCount
-    global User1Count
-    global User2Count
-    global ValidFile
-    global TotalCount
+    global SoloImporting, NameUser1, SelfUser1, incorrectname, LineCount, User1Count
+    global NameUser2, SelfUser2, User2Count, ValidFile, TotalCount
     print()
     if SoloImporting is True:
         NameUser1 = input("Who is one of the partners?: ")
@@ -606,79 +585,85 @@ def CheckMessages():
             return
 
 def DumpDB():
-    global TotalCount
-    global NameUser1
-    global NameUser2
-    global FilePath
-    global Filename
+    global TotalCount, NameUser1, NameUser2, FilePath, Filename
     bar = progressbar.ProgressBar(max_value=TotalCount)
     bar.start()
     completed = 0
-    with open(FilePath, mode="r", encoding="utf-8") as f:
-        Filename = os.path.basename(FilePath)
-        db = DBConnection(False, False)
-        User1 = False
-        Msg = []
-        User1 = False
-        User2 = False
-        header = None
-        Iterated = False
-        for l in f:
-            if (l.find(": " + NameUser1 + ":") != -1 or l.find(": " + NameUser2 + ":") != -1) and Iterated:
+    try:
+        with open(FilePath, mode="r", encoding="utf-8") as f:
+            Filename = os.path.basename(FilePath)
+            db = DBConnection(False, False)
+            User1 = False
+            Msg = []
+            User1 = False
+            User2 = False
+            header = None
+            Iterated = False
+            for l in f:
+                if (l.find(": " + NameUser1 + ":") != -1 or l.find(": " + NameUser2 + ":") != -1 or l.find(" - " + NameUser1 + ":") != -1 or l.find(" - " + NameUser2 + ":") != -1) and Iterated:
+                    if User1:
+                        reg4 = (True, NameUser1, header, Msg[0])
+                    elif User2:
+                        reg4 = (False, NameUser2, header, Msg[0])
+                    db.execute("INSERT INTO ImportedMessages VALUES(?,?,?,?)", reg4)
+                elif Iterated:
+                    Msg[0] = Msg[0] + l
+
+                if l.find(": " + NameUser1 + ":") != -1:
+                    Iterated = True
+                    header = None
+                    Msg.clear()
+                    header, msg = l.split(": " + NameUser1 + ": ")
+                    Msg.append(msg)
+                    User1 = True
+                    User2 = False
+                elif l.find(" - " + NameUser1 + ":") != -1:
+                    Iterated = True
+                    header = None
+                    Msg.clear()
+                    header, msg = l.split(" - " + NameUser1 + ": ")
+                    Msg.append(msg)
+                    User1 = True
+                    User2 = False
+                elif l.find(": " + NameUser2 + ":") != -1:
+                    Iterated = True
+                    header = None
+                    Msg.clear()
+                    header, msg = l.split(": " + NameUser2 + ": ")
+                    Msg.append(msg)
+                    User1 = False
+                    User2 = True
+                elif l.find(" - " + NameUser2 + ":") != -1:
+                    Iterated = True
+                    header = None
+                    Msg.clear()
+                    header, msg = l.split(" - " + NameUser2 + ": ")
+                    Msg.append(msg)
+                    User1 = False
+                    User2 = True
+                completed = completed + 1
+                try:
+                    bar.update(completed)
+                except:
+                    pass
+            if len(Msg) != 0:
                 if User1:
                     reg4 = (True, NameUser1, header, Msg[0])
                 elif User2:
                     reg4 = (False, NameUser2, header, Msg[0])
                 db.execute("INSERT INTO ImportedMessages VALUES(?,?,?,?)", reg4)
-            elif Iterated:
-                Msg[0] = Msg[0] + l
-
-            if l.find(": " + NameUser1 + ":") != -1:
-                Iterated = True
-                header = None
-                Msg.clear()
-                header, msg = l.split(": " + NameUser1 + ": ")
-                Msg.append(msg)
-                User1 = True
-                User2 = False
-            elif l.find(": " + NameUser2 + ":") != -1:
-                Iterated = True
-                header = None
-                Msg.clear()
-                header, msg = l.split(": " + NameUser2 + ": ")
-                Msg.append(msg)
-                User1 = False
-                User2 = True
-            completed = completed + 1
-            try:
-                bar.update(completed)
-            except:
-                pass
-        if len(Msg) != 0:
-            if User1:
-                reg4 = (True, NameUser1, header, Msg[0])
-            elif User2:
-                reg4 = (False, NameUser2, header, Msg[0])
-            db.execute("INSERT INTO ImportedMessages VALUES(?,?,?,?)", reg4)
-        Msg.clear()
-        db.commit()
-        bar.finish()
+            Msg.clear()
+            db.commit()
+    except Exception as e:
+        print("FATAL ERROR WHILE SETTING UP: Some settings couldn't be saved to the database. Check if you set all the parameters correctly and see the logs for further information. TLImporter will now close")
+        getpass.getpass("\nPRESS ENTER TO CONTINUE")
+        logging.exception("TLIMPORTER EXCEPTION IN DUMPDB(): " + str(e))
+    bar.finish()
 
 def ExportMessages():
-    global NoTimestamps
-    global EndDate
-    global SelfUser2
-    global SelfUser1
-    global User2IDs
-    global User1IDs
-    global TotalCount
-    global NameUser2
-    global NameUser1
-    global RawLoopCount
-    global user1
-    global user2
-    global Filename
-    global FilePath
+    global NoTimestamps, EndDate, TotalCount, RawLoopCount, Filename, FilePath
+    global SelfUser1, user1, User1IDs, NameUser1
+    global SelfUser2, user2, User2IDs, NameUser2
     print("\nYou can cancel at any time pressing CTRL+C keyboard combination.")
     print("\nINFORMATION: Each 2000 messages, a pause of around 7 minutes will be done for reducing Telegram's flood limits.\nBe patient, the process will be still going on.\n")
     try:
@@ -704,7 +689,7 @@ def ExportMessages():
             welcmsg = SendMessageClient1(user2, "📲`IMPORTING THE CHAT WITH` __" + NameUser1 + "__ and __" + NameUser2 + "__ using `" + Filename + "` as source file. __'" + NameUser2 + "'__ is **" + SelfUser2.first_name + "** now.")
         else:
             reg1 = (SelfUser1.id, None, SelfUser1.first_name + " (+" + SelfUser1.phone + ")", None, client1.get_messages(user1, 0).total, None, TotalCount, SoloImporting)
-            welcmsg = SendMessageClient1(user2, "📲`IMPORTING THE CHAT WITH` __" + NameUser1 + "__ and __" + NameUser2 + "__ using `" + Filename + "` as source file.")
+            welcmsg = SendMessageClient1(user1, "📲`IMPORTING THE CHAT WITH` __" + NameUser1 + "__ and __" + NameUser2 + "__ using `" + Filename + "` as source file.")
         reg2 = (NameUser1, NameUser2, Filename, FilePath, SoloImporting)
         database.execute("INSERT INTO Statistics VALUES(?,?,?,?,?,?,?,?)", reg1)
         database.execute("INSERT INTO Settings VALUES(?,?,?,?,?)", reg2)
@@ -719,7 +704,7 @@ def ExportMessages():
             Date = None
             Message = None
             Sender = None
-            list = None
+            msglist = None
             LongMessage = False
             if row[0] == 0:
                 Out = False
@@ -751,7 +736,7 @@ def ExportMessages():
                         n = 4096
                     else:
                         n = 4096 - len(Sender)
-                    list = [Message[i:i + n] for i in range(0, len(Message), n)]
+                    msglist = [Message[i:i + n] for i in range(0, len(Message), n)]
                 elif SoloImporting and len(Message+Sender) > 4096:
                     LongMessage = True
             else:
@@ -760,13 +745,13 @@ def ExportMessages():
                         n = 4096 - len(Date)
                     else:
                         n = 4096 - len(Date) - len(Sender)
-                    list = [Message[i:i + n] for i in range(0, len(Message), n)]
+                    msglist = [Message[i:i + n] for i in range(0, len(Message), n)]
                 elif not SoloImporting and len(Message+Date) > 4096:
                     LongMessage = True
                 elif SoloImporting and len(Message+Date+Sender) > 4096:
                     LongMessage = True
 
-            if list is None:
+            if msglist is None:
                 if LongMessage:
                     if SoloImporting:
                         if NoTimestamps:
@@ -821,7 +806,7 @@ def ExportMessages():
                 IDs = []
                 if SoloImporting:
                     if NoTimestamps:
-                        for m in list:
+                        for m in msglist:
                             if LoopCount == 0:
                                 msg = SendMessageClient1(user1, Sender + m)
                             else:
@@ -830,7 +815,7 @@ def ExportMessages():
                             IDs.append(msg.id)
                             User1IDs.append(msg.id)
                     elif EndDate:
-                        for m in list:
+                        for m in msglist:
                             if LoopCount == 0:
                                 msg = SendMessageClient1(user1, Sender + m + Date)
                             else:
@@ -839,7 +824,7 @@ def ExportMessages():
                             IDs.append(msg.id)
                             User1IDs.append(msg.id)
                     else:
-                        for m in list:
+                        for m in msglist:
                             if LoopCount == 0:
                                 msg = SendMessageClient1(user1, Date + m)
                             else:
@@ -850,7 +835,7 @@ def ExportMessages():
                 else:
                     if Out:
                         if NoTimestamps:
-                            for m in list:
+                            for m in msglist:
                                 if LoopCount == 0:
                                     msg = SendMessageClient1(user2, m)
                                 else:
@@ -859,7 +844,7 @@ def ExportMessages():
                                 IDs.append(msg.id)
                                 User1IDs.append(msg.id)
                         elif EndDate:
-                            for m in list:
+                            for m in msglist:
                                 if LoopCount == 0:
                                     msg = SendMessageClient1(user2, m + Date)
                                 else:
@@ -868,7 +853,7 @@ def ExportMessages():
                                 IDs.append(msg.id)
                                 User1IDs.append(msg.id)
                         else:
-                            for m in list:
+                            for m in msglist:
                                 if LoopCount == 0:
                                     msg = SendMessageClient1(user2, Date + m)
                                 else:
@@ -878,7 +863,7 @@ def ExportMessages():
                                 User1IDs.append(msg.id)
                     else:
                         if NoTimestamps:
-                            for m in list:
+                            for m in msglist:
                                 if LoopCount == 0:
                                     msg = SendMessageClient2(user1, m)
                                 else:
@@ -887,7 +872,7 @@ def ExportMessages():
                                 IDs.append(msg.id)
                                 User2IDs.append(msg.id)
                         elif EndDate:
-                            for m in list:
+                            for m in msglist:
                                 if LoopCount == 0:
                                     msg = SendMessageClient2(user1, m + Date)
                                 else:
@@ -896,7 +881,7 @@ def ExportMessages():
                                 IDs.append(msg.id)
                                 User2IDs.append(msg.id)
                         else:
-                            for m in list:
+                            for m in msglist:
                                 if LoopCount == 0:
                                     msg = SendMessageClient2(user1, Date + m)
                                 else:
@@ -919,17 +904,17 @@ def ExportMessages():
                 time.sleep(420)
             elif RawLoopCount == 2000 and SoloImporting:
                 RawLoopCount = 0
-                time.sleep(420)
+                time.sleep(620)
         if RawLoopCount != 0 and not SoloImporting:
             GetIncomingIdOfUser2(user2, RawLoopCount)
             GetIncomingIdOfUser1(user1, RawLoopCount)
-            RawLoopCount = 0
-        client1.send_read_acknowledge(user2, max_id=0)
-        client2.send_read_acknowledge(user1, max_id=0)
+            RawLoopCount = 0        
         if SoloImporting:
             confirm = SendMessageClient1(user1, "✅ **SUCCESS!!**\nSuccessfully imported **" + str(TotalCount) + "** messages. **" + str(User1Count) + "** messages were from `" + NameUser1 + "` and **" + str(User2Count) + "** messages were from `" + NameUser2 + "`.\nThis chat now contains **" + str(client1.get_messages(user1, 0).total) + "** messages.\n\nThank you very much for using TLImporter!\n\n**--ferferga** ✅")
             User1IDs.append(confirm.id)
         else:
+            client1.send_read_acknowledge(user2, max_id=0)
+            client2.send_read_acknowledge(user1, max_id=0)
             confirm = SendMessageClient1(user2, "✅ **SUCCESS!!**\nSuccessfully imported **" + str(
                 TotalCount) + "** messages. **" + str(
                 User1Count) + "** messages were from `" + NameUser1 + "` and **" + str(
@@ -986,47 +971,26 @@ def ExportMessages():
 
 ##ENTRY POINT OF THE CODE
 try:
-    os.remove("TLImporter-log.log")
-except:
-    pass
-logging.basicConfig(filename="TLImporter-log.log", level=logging.DEBUG, format='%(asctime)s %(message)s')
-getpass.getpass("HELLO! WELCOME TO TELEGRAM CHAT IMPORTER!\n\nThis app will import your TXT conversations from third-party apps (like WhatsApp) into your existing Telegram Chat with your partner. \nRead all the documentation on the GitHub page (https://github.com/TelegramTools/TLImporter/wiki) for all the important information.\n\nPress ENTER to continue")
-getpass.getpass("\n\nWARNING: Telegram allows only a specific and unknown amount of messages within a specific timeframe for security reasons. You might not be able to message friends for a small period of time.\nThis is known as a 'flood limitation'.\n\nThus, I suggest you to do this at night or in a period of time that you do not need to use Telegram. Check https://github.com/TelegramTools/TLImporter/wiki/Before-starting for more information. Press ENTER to continue.")
-print("\n\nLogging you into Telegram...")
-StartClient1()
-print("\n\nYou are logged in as " + SelfUser1.first_name + "!")
-try:
-    os.remove("TLImporter-DB.db")
-except:
-    pass
-print("\nCreating database...")
-DBConnection(True, False)
-CreateTables()
-while True:
-    answer = None
-    answer = input("Do you want to import a conversation using two users, in a 1:1 format? Otherwise, the chat will be imported inside your 'Saved Messages'. [y/n]: ")
-    answer = answer.replace(" ", "")
-    answer = answer.upper()
-    if not (answer == 'Y' or answer == 'N'):
-        while True:
-            print()
-            answer = input("The command you entered was not valid. Please, enter a valid one: ")
-            answer = answer.replace(" ", "")
-            answer = answer.upper()
-            if (answer == "Y") or (answer == "N"):
-                break
-    if answer == "Y":
-        SoloImporting = False
-        break
-    if answer == "N":
-        SoloImporting = True
-        break
-if SoloImporting is False:
-    print("\n\nNow, you have to log in your partner in Telegram...\n")
+    try:
+        os.remove("TLImporter-log.log")
+    except:
+        pass
+    logging.basicConfig(filename="TLImporter-log.log", level=logging.DEBUG, format='%(asctime)s %(message)s')
+    getpass.getpass("HELLO! WELCOME TO TELEGRAM CHAT IMPORTER!\n\nThis app will import your TXT conversations from third-party apps (like WhatsApp) into your existing Telegram Chat with your partner. \nRead all the documentation on the GitHub page (https://github.com/TelegramTools/TLImporter/wiki) for all the important information.\n\nPress ENTER to continue")
+    getpass.getpass("\n\nWARNING: Telegram allows only a specific and unknown amount of messages within a specific timeframe for security reasons. You might not be able to message friends for a small period of time.\nThis is known as a 'flood limitation'.\n\nThus, I suggest you to do this at night or in a period of time that you do not need to use Telegram. Check https://github.com/TelegramTools/TLImporter/wiki/Before-starting for more information. Press ENTER to continue.")
+    print("\n\nLogging you into Telegram...")
+    StartClient1()
+    print("\n\nYou are logged in as " + SelfUser1.first_name + "!")
+    try:
+        os.remove("TLImporter-DB.db")
+    except:
+        pass
+    print("\nCreating database...")
+    DBConnection(True, False)
+    CreateTables()
     while True:
         answer = None
-        answer = input(
-            "\nDo you want to log in your partner using the 'Secret Mode'? Refer to the documentation in GitHub (check https://github.com/TelegramTools/TLSecret as well) for more information. [y/n]: ")
+        answer = input("Do you want to import a conversation using two users, in a 1:1 format? Otherwise, the chat will be imported inside your 'Saved Messages'. [y/n]: ")
         answer = answer.replace(" ", "")
         answer = answer.upper()
         if not (answer == 'Y' or answer == 'N'):
@@ -1038,103 +1002,129 @@ if SoloImporting is False:
                 if (answer == "Y") or (answer == "N"):
                     break
         if answer == "Y":
-            SecretMode = True
+            SoloImporting = False
             break
         if answer == "N":
-            SecretMode = False
+            SoloImporting = True
             break
-    if SecretMode:
-        StartSecretMode()
-    else:
-        client2 = TelegramClient('User2', api_id, api_hash, device_model=TLdevice_model,
-                                 system_version=TLsystem_version, app_version=TLapp_version, lang_code=TLlang_code,
-                                 system_lang_code=TLsystem_lang_code)
-        print("")
-        StartClient2()
-    print ("\n\nYour partner is logged in as " + SelfUser2.first_name + " (+" + SelfUser2.phone + ")")
-    print('\n\nYou are going to copy a conversation from ' + SelfUser1.first_name + ' (+' + SelfUser1.phone + ') to ' + SelfUser2.first_name + ' (+' + SelfUser2.phone + ')')
-else:
-    print("\n\nYou are going to import the conversation in your Telegram's 'Saved Messages' section.")
-while True:
-    FilePath = input("""\nIt's time to type the path of the file to import. You can also drag and drop it here to get the full path easily.\n\nPath of the file: """)
-    if FilePath is None:
-        print("You have entered a invalid path. Try again.")
-        continue
-    else:
-        try:
-            FilePath = FilePath.replace('"', "")
-        except:
-            pass
-    if not os.path.isfile(FilePath):
-        print("You have entered a wrong path, no file could be found. Try again.")
-        continue
-    else:
-        CheckMessages()
-        if ValidFile is True:
-            break
-        else:
-            print(NameUser1 + " and " + NameUser2 + " couldn't be found in " + FilePath + ".\n")
-            print("This file is not valid. I'm going to ask you again the filepath and the name of the users.\nMake sure that you set up everything accordingly. Read the FAQ (https://github.com/TelegramTools/TLImporter/wiki/Importing-chats) for more information.")
-print("This file is valid to be imported. It has " + str(TotalCount) + " lines in total.")
-print("\n" + NameUser1 + " has " + str(User1Count) + " messages. " + NameUser2 + " has " + str(User2Count) + " messages.")
-print("\nProcessing and saving messages in the database...")
-DumpDB()
-print("\nSuccessfully completed!")
-print("\n\nNow, before importing the chat, we will set up a few settings:\n")
-print()
-while True:
-    print("Here are your current settings:\n")
-    if NoTimestamps is True:
-        print("> 1. Timestamps settings: Don't add timestamps")
-    else:
-        print("> 1. Timestamps settings: Add Timestamps")
-    if EndDate is True:
-        print(">     - Position: End of the message")
-    else:
-        print(">     - Position: Beginning of the message")
-    if AppendHashtag is True:
-        print("> 2. Add hashtags to each message: Yes")
-    else:
-        print("> 2. Add hashtags to each message: No")
-    if SendDatabase is True:
-        print("> 4. Backup of the database in 'Saved Messages': Yes")
-    else:
-        print("> 4. Backup of the database in 'Saved Messages': No")
-    print()
-    print("> Available commands: ")
-    print("  !C: Confirm these settings and start the import of the chat")
-    print("  !1: See a description and change timestamps settings")
-    print("  !2: See a description and change hashtags settings")
-    print("  !3: See a description and change Database settings")
-    print()
-    answer = str(input("Enter a command: "))
-    answer = answer.replace(" ", "")
-    answer = answer.upper()
-    if not (answer == '!C' or answer == '!1' or answer == '!2' or answer == '!3'):
+    if SoloImporting is False:
+        print("\n\nNow, you have to log in your partner in Telegram...\n")
         while True:
-            print()
-            answer = input("The command you entered was not valid. Please, enter a valid one: ")
+            answer = None
+            answer = input(
+                "\nDo you want to log in your partner using the 'Secret Mode'? Refer to the documentation in GitHub (check https://github.com/TelegramTools/TLSecret as well) for more information. [y/n]: ")
             answer = answer.replace(" ", "")
             answer = answer.upper()
-            if (answer == "!C") or (answer == "!1") or (answer == "!2") or (answer == "!3"):
+            if not (answer == 'Y' or answer == 'N'):
+                while True:
+                    print()
+                    answer = input("The command you entered was not valid. Please, enter a valid one: ")
+                    answer = answer.replace(" ", "")
+                    answer = answer.upper()
+                    if (answer == "Y") or (answer == "N"):
+                        break
+            if answer == "Y":
+                SecretMode = True
                 break
-    if (answer == "!C"):
-        break
-    if (answer == "!1"):
-        ChangeTimestampSettings()
-    if (answer == "!2"):
-        ChangeHashtagsSettings()
-    if (answer == "!3"):
-        ChangeDatabaseSettings()
-print("STARTED! Importing the conversation in Telegram...")
-print()
-ExportMessages()
-print("\n")
-getpass.getpass("Press ENTER to log out: ")
-print('Logging ' + SelfUser1.first_name + ' (+' + SelfUser1.phone + ') and ' + SelfUser2.first_name + ' (+' + SelfUser2.phone + ') out of Telegram...')
-client1.log_out()
-client2.log_out()
-print("Thank you very much for using the app!\n\n--ferferga\n\nGOODBYE!")
-print()
-getpass.getpass("Press ENTER to close the app: ")
-sys.exit(0)
+            if answer == "N":
+                SecretMode = False
+                break
+        if SecretMode:
+            StartSecretMode()
+        else:
+            client2 = TelegramClient('User2', api_id, api_hash, device_model=TLdevice_model,
+                                    system_version=TLsystem_version, app_version=TLapp_version, lang_code=TLlang_code,
+                                    system_lang_code=TLsystem_lang_code)
+            print("")
+            StartClient2()
+        print ("\n\nYour partner is logged in as " + SelfUser2.first_name + " (+" + SelfUser2.phone + ")")
+        print('\n\nYou are going to copy a conversation from ' + SelfUser1.first_name + ' (+' + SelfUser1.phone + ') to ' + SelfUser2.first_name + ' (+' + SelfUser2.phone + ')')
+    else:
+        print("\n\nYou are going to import the conversation in your Telegram's 'Saved Messages' section.")
+    while True:
+        FilePath = input("""\nIt's time to type the path of the file to import. You can also drag and drop it here to get the full path easily.\n\nPath of the file: """)
+        if FilePath is None:
+            print("You have entered a invalid path. Try again.")
+            continue
+        else:
+            try:
+                FilePath = FilePath.replace('"', "")
+            except:
+                pass
+        if not os.path.isfile(FilePath):
+            print("You have entered a wrong path, no file could be found. Try again.")
+            continue
+        else:
+            CheckMessages()
+            if ValidFile is True:
+                break
+            else:
+                print(NameUser1 + " and " + NameUser2 + " couldn't be found in " + FilePath + ".\n")
+                print("This file is not valid. I'm going to ask you again the filepath and the name of the users.\nMake sure that you set up everything accordingly. Read the FAQ (https://github.com/TelegramTools/TLImporter/wiki/Importing-chats) for more information.")
+    print("This file is valid to be imported. It has " + str(TotalCount) + " lines in total.")
+    print("\n" + NameUser1 + " has " + str(User1Count) + " messages. " + NameUser2 + " has " + str(User2Count) + " messages.")
+    print("\nProcessing and saving messages in the database...")
+    DumpDB()
+    print("\nSuccessfully completed!")
+    print("\n\nNow, before importing the chat, we will set up a few settings:\n")
+    print()
+    while True:
+        print("Here are your current settings:\n")
+        if NoTimestamps is True:
+            print("> 1. Timestamps settings: Don't add timestamps")
+        else:
+            print("> 1. Timestamps settings: Add Timestamps")
+        if EndDate is True:
+            print(">     - Position: End of the message")
+        else:
+            print(">     - Position: Beginning of the message")
+        if AppendHashtag is True:
+            print("> 2. Add hashtags to each message: Yes")
+        else:
+            print("> 2. Add hashtags to each message: No")
+        if SendDatabase is True:
+            print("> 4. Backup of the database in 'Saved Messages': Yes")
+        else:
+            print("> 4. Backup of the database in 'Saved Messages': No")
+        print()
+        print("> Available commands: ")
+        print("  !C: Confirm these settings and start the import of the chat")
+        print("  !1: See a description and change timestamps settings")
+        print("  !2: See a description and change hashtags settings")
+        print("  !3: See a description and change Database settings")
+        print()
+        answer = str(input("Enter a command: "))
+        answer = answer.replace(" ", "")
+        answer = answer.upper()
+        if not (answer == '!C' or answer == '!1' or answer == '!2' or answer == '!3'):
+            while True:
+                print()
+                answer = input("The command you entered was not valid. Please, enter a valid one: ")
+                answer = answer.replace(" ", "")
+                answer = answer.upper()
+                if (answer == "!C") or (answer == "!1") or (answer == "!2") or (answer == "!3"):
+                    break
+        if (answer == "!C"):
+            break
+        if (answer == "!1"):
+            ChangeTimestampSettings()
+        if (answer == "!2"):
+            ChangeHashtagsSettings()
+        if (answer == "!3"):
+            ChangeDatabaseSettings()
+    print("STARTED! Importing the conversation in Telegram...")
+    print()
+    ExportMessages()
+    print("\n")
+    getpass.getpass("Press ENTER to log out: ")
+    print('Logging ' + SelfUser1.first_name + ' (+' + SelfUser1.phone + ') and ' + SelfUser2.first_name + ' (+' + SelfUser2.phone + ') out of Telegram...')
+    client1.log_out()
+    client2.log_out()
+    print("Thank you very much for using the app!\n\n--ferferga\n\nGOODBYE!")
+    print()
+    getpass.getpass("Press ENTER to close the app: ")
+    sys.exit(0)
+except Exception as e:
+    print("FATAL ERROR! TLImporter had an irrecuperable error. Please, report this bug. Details in TLImporter-log.log. Press ENTER to exit")
+    getpass.getpass("")
+    logging.exception("TLImporter error in main thread. Stacktrace: " + str(e))
