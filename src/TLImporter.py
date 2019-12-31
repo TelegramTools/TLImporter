@@ -593,14 +593,17 @@ def DumpDB():
         with open(FilePath, mode="r", encoding="utf-8") as f:
             Filename = os.path.basename(FilePath)
             db = DBConnection(False, False)
-            User1 = False
             Msg = []
             User1 = False
             User2 = False
             header = None
             Iterated = False
             for l in f:
-                if (l.find(": " + NameUser1 + ":") != -1 or l.find(": " + NameUser2 + ":") != -1 or l.find(" - " + NameUser1 + ":") != -1 or l.find(" - " + NameUser2 + ":") != -1) and Iterated:
+
+                found_user1 = user_exists_in_line(NameUser1, l)
+                found_user2 = user_exists_in_line(NameUser2, l)
+
+                if (found_user1 or found_user2) and Iterated:
                     if User1:
                         reg4 = (True, NameUser1, header, Msg[0])
                     elif User2:
@@ -609,9 +612,28 @@ def DumpDB():
                 elif Iterated:
                     Msg[0] = Msg[0] + l
 
+                if l.find("] " + NameUser1 + ":") != -1:
+                    Iterated = True
+                    Msg.clear()
+                    header, msg = l.split("] "+ NameUser1 + ": ")
+                    # the following two lines change it to this format 22/12/19 17:36:46
+                    header = header.translate({ord(i): None for i in '[,'})
+                    header = header.replace(".", "/")
+                    Msg.append(msg)
+                    User1 = True
+                    User2 = False
+                elif l.find("] " + NameUser2 + ":") != -1:
+                    Iterated = True
+                    Msg.clear()
+                    header, msg = l.split("] " + NameUser2 + ": ")
+                    # the following two lines change it to this format 22/12/19 17:36:46
+                    header = header.translate({ord(i): None for i in '[,'})
+                    header = header.replace(".", "/")
+                    Msg.append(msg)
+                    User1 = False
+                    User2 = True
                 if l.find(": " + NameUser1 + ":") != -1:
                     Iterated = True
-                    header = None
                     Msg.clear()
                     header, msg = l.split(": " + NameUser1 + ": ")
                     Msg.append(msg)
@@ -619,7 +641,6 @@ def DumpDB():
                     User2 = False
                 elif l.find(" - " + NameUser1 + ":") != -1:
                     Iterated = True
-                    header = None
                     Msg.clear()
                     header, msg = l.split(" - " + NameUser1 + ": ")
                     Msg.append(msg)
@@ -627,7 +648,6 @@ def DumpDB():
                     User2 = False
                 elif l.find(": " + NameUser2 + ":") != -1:
                     Iterated = True
-                    header = None
                     Msg.clear()
                     header, msg = l.split(": " + NameUser2 + ": ")
                     Msg.append(msg)
@@ -635,12 +655,12 @@ def DumpDB():
                     User2 = True
                 elif l.find(" - " + NameUser2 + ":") != -1:
                     Iterated = True
-                    header = None
                     Msg.clear()
                     header, msg = l.split(" - " + NameUser2 + ": ")
                     Msg.append(msg)
                     User1 = False
                     User2 = True
+
                 completed = completed + 1
                 try:
                     bar.update(completed)
@@ -659,6 +679,12 @@ def DumpDB():
         getpass.getpass("\nPRESS ENTER TO CONTINUE")
         logging.exception("TLIMPORTER EXCEPTION IN DUMPDB(): " + str(e))
     bar.finish()
+
+
+def user_exists_in_line(name_user, l):
+    return (l.find("] " + name_user + ":") != -1 or l.find(": " + name_user + ":") != -1 or l.find(
+        " - " + name_user + ":"))
+
 
 def ExportMessages():
     global NoTimestamps, EndDate, TotalCount, RawLoopCount, Filename, FilePath
