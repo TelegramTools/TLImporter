@@ -1,30 +1,20 @@
-##### THIS SCRIPT HAS BEEN ORIGINALLY DEVELOPED BY FERFERGA. PLEASE, DON'T CLAIM THAT IT'S SOLELY YOURS.
-##### GIVE ALWAYS CREDITS TO ORIGINAL AUTHORS.
-#####
-##### THANKS FOR USING!
-
-import datetime
-import getpass
-import logging
-import shutil
-import sqlite3
-import sys
-import time
-from os import mkdir
+#!/usr/bin/python3
+import logging, shutil, sqlite3, sys, time, os, io
 try:
     import cryptg
 except:
     pass
-
 import progressbar  # progressbar2 module
-from telethon import TelegramClient, events
+import pyAesCrypt
+from datetime import date
+from getpass import getpass
+from telethon.sync import TelegramClient, events
 from telethon.errors import FloodWaitError
 from telethon.crypto import AuthKey
 from telethon.tl.functions.messages import *
 from telethon.tl.types import *
 from telethon.sessions import *
 from telethon.utils import get_display_name
-import pyAesCrypt
 
 api_id = YOUR_API_ID_HERE
 api_hash = 'YOUR_API_HASH_HERE'
@@ -62,11 +52,11 @@ client2 = None
 dialogs = None
 ChosenChat = None
 password = "PASSWORD_FOR_SECRET_MODE"
-bufferSize = 64 * 1024
+bufferSize = 64 * 4096
 SecretMessage = None
+secretdbstream = None
 
-client1 = TelegramClient('User1', api_id, api_hash, device_model=TLdevice_model, system_version=TLsystem_version, app_version=TLapp_version, lang_code=TLlang_code, system_lang_code=TLsystem_lang_code, update_workers=1, spawn_read_thread=False)
-#client1 = TelegramClient('User1', api_id, api_hash, device_model=TLdevice_model, system_version=TLsystem_version, app_version=TLapp_version, lang_code=TLlang_code, system_lang_code=TLsystem_lang_code) TO USE FORWARD 1.0 TELETHON VERSION
+client1 = TelegramClient('User1', api_id, api_hash, device_model=TLdevice_model, system_version=TLsystem_version, app_version=TLapp_version, lang_code=TLlang_code, system_lang_code=TLsystem_lang_code)
 
 def sprint(string, *args, **kwargs):
     #Safe Print (handle UnicodeEncodeErrors on some terminals)
@@ -121,21 +111,17 @@ def PrintChatList():
             # Retrieve the selected user (or chat, or channel)
         return dialogs[i].entity
 
-def EventHandler(event):
-    global SecretMessage
-    if getattr(event.original_message, 'media', None):
-        if isinstance(event.original_message.media, (MessageMediaDocument, Document)):
-            for attr in event.original_message.media.document.attributes:
+async def EventHandler(event):
+    global SecretMessage, secretdbstream
+    if getattr(event.message, 'media', None):
+        if isinstance(event.message.media, (MessageMediaDocument, Document)):
+            for attr in event.message.media.document.attributes:
                 if isinstance(attr, DocumentAttributeFilename):
                     if attr.file_name == "DB.aes":
                         print("\nResponse received! Processing...")
-                        try:
-                            os.remove("DB.aes")
-                        except:
-                            pass
-                        client1.download_media(event.original_message)
-                        SecretMessage = client1.send_message(ChosenChat, "WooHoo!")
-                        client1.disconnect()
+                        secretdbstream = await client1.download_media(event.message, file=bytes)
+                        SecretMessage = await client1.send_message(ChosenChat, "WooHoo!")
+                        await client1.disconnect()
     return
 
 def StartClient1():
@@ -147,7 +133,7 @@ def StartClient1():
         SelfUser1 = client1.get_me()
     except:
         if not client1.is_connected():
-            getpass.getpass("You are not connected to the internet or the phone was given in the incorrect format. Check your connection and press ENTER to try again: ")
+            getpass("You are not connected to the internet or the phone was given in the incorrect format. Check your connection and press ENTER to try again: ")
         StartClient1()
     return
 
@@ -160,50 +146,34 @@ def StartClient2():
         SelfUser2 = client2.get_me()
     except:
         if not client2.is_connected():
-            getpass.getpass(
+            getpass(
             "You are not connected to the internet or the phone was given in the incorrect format. Check your connection and press ENTER to try again: ")
         StartClient1()
     return
 
 def StartSecretMode():
-    global dialogs, ChosenChat, password, bufferSize, client2, SecretMessage
-    getpass.getpass("\n\nYou have chosen to use the Telegram Tool's secret mode for logging your partner in Telegram.\nNow, it's time to choose your partner in your chat list. Press ENTER to continue: ")
+    global dialogs, ChosenChat, password, bufferSize, client2, SecretMessage, secretdbstream
+    getpass("\n\nYou have chosen to use the Telegram Tool's secret mode for logging your partner in Telegram.\nNow, it's time to choose your partner in your chat list. Press ENTER to continue: ")
     print("Gathering your chat list...")
     ChosenChat = PrintChatList()
     dialogs.clear()
     print("\n\nWaiting for a response from your partner...")
     client1.add_event_handler(EventHandler, events.NewMessage(chats=ChosenChat, incoming=True))
-    #client1.run_until_disconnected() TO USE FORWARD 1.0 TELETHON VERSION
-    client1.idle() #TO USE PRIOR 1.0 TELETHON VERSION
+    client1.run_until_disconnected()
     client1.connect()
-    pyAesCrypt.decryptFile("DB.aes", "TempDB.session", password, bufferSize)
-    old_db = sqlite3.connect('TempDB.session')
-    db = old_db.cursor()
-    db.execute('SELECT * FROM sessions')
-    dblist = []
-    for row in db:
-        dblist.append(row[0])
-        dblist.append(row[1])
-        dblist.append(row[2])
-        dblist.append(row[3])
-    old_db.close()
-    try:
-        os.remove("DB.aes")
-        os.remove("TempDB.session")
-    except:
-        pass
-    client2 = TelegramClient(None, api_id, api_hash, device_model=TLdevice_model,
+    byteDec = io.BytesIO()
+    byteIn = io.BytesIO(secretdbstream)
+    pyAesCrypt.decryptStream(byteIn, byteDec, password, bufferSize, len(byteIn.getvalue()))
+    byteDec.seek(0)
+    client2 = TelegramClient(StringSession(byteDec.read().decode()), api_id, api_hash, device_model=TLdevice_model,
                              system_version=TLsystem_version, app_version=TLapp_version, lang_code=TLlang_code,
                              system_lang_code=TLsystem_lang_code)
-    client2.session.set_dc(dblist[0], dblist[1], dblist[2])
-    client2.session.auth_key = AuthKey(data=dblist[3]) #TO USE PRIOR 1.0 TELETHON VERSION
-    #client2._sender.state.auth_key = AuthKey(data=dblist[3])TO USE FORWARD 1.0 TELETHON VERSION
-    dblist.clear()
     StartClient1()
     client1.remove_event_handler(EventHandler, events.NewMessage(chats=ChosenChat, incoming=True))
     client1.delete_messages(ChosenChat, SecretMessage.id, revoke=True)
     StartClient2()
     print("Secret Mode's Authentication done successfully!")
+    del secretdbstream, byteIn, byteDec
 
 def ChangeTimestampSettings():
     global NoTimestamps, EndDate
@@ -364,7 +334,7 @@ def HandleExceptions():
             SendMessageClient1(SelfUser1,
                                "💾 You can read this database using programs like https://github.com/sqlitebrowser/sqlitebrowser/releases. This database is **mandatory** if you want to use [TLRevert](https://github.com/TelegramTools/TLRevert) in order to revert all the changes made by TLImporter. Read the manuals of both programs if you have any doubt about them. **Thank you very much for using** [TLImporter](https://github.com/TelegramTools/TLImporter)**!**\n\n**--ferferga**",
                                reply_to=databasecopy.id)
-        getpass.getpass("\n\nYou can close TLImporter by pressing ENTER: ")
+        getpass("\n\nYou can close TLImporter by pressing ENTER: ")
         sys.exit(0)
     return
 
@@ -389,7 +359,7 @@ def SendFileClient1(*args, **kwargs):
         print("\nSomething went wrong in Telegram's side. This is the full exception:\n\n"  + str(e))
         ExceptionReached = True
         if ExceptionReached is False:
-            getpass.getpass("Press ENTER to try again: ")
+            getpass("Press ENTER to try again: ")
             ExceptionReached = True
         else:
             HandleExceptions()
@@ -407,7 +377,7 @@ def SendMessageClient1(*args, **kwargs):
         logging.exception("TLImporter TELEGRAMEXCEPTION IN SendMessageClient1: " + str(e))
         print("\nSomething went wrong in Telegram's side. This is the full exception:\n\n"  + str(e))
         if ExceptionReached is False:
-            getpass.getpass("Press ENTER to try again: ")
+            getpass("Press ENTER to try again: ")
             ExceptionReached = True
         else:
             HandleExceptions()
@@ -425,7 +395,7 @@ def SendMessageClient2(*args, **kwargs):
         logging.exception("TLImporter TELEGRAMEXCEPTION IN SendMessageClient2: " + str(e))
         print("\nSomething went wrong in Telegram's side. This is the full exception:\n\n"  + str(e))
         if ExceptionReached is False:
-            getpass.getpass("Press ENTER to try again: ")
+            getpass("Press ENTER to try again: ")
             ExceptionReached = True
         else:
             HandleExceptions()
@@ -449,7 +419,7 @@ def GetIncomingIdOfUser2(u, lim):
         logging.exception("TLImporter TELEGRAMEXCEPTION IN GETINCOMINGIDOFUSER2: " + str(e))
         print("Something went wrong in Telegram's side. This is the full exception:\n\n"  + str(e))
         if ExceptionReached is False:
-            getpass.getpass("Press ENTER to try again: ")
+            getpass("Press ENTER to try again: ")
             ExceptionReached = True
         else:
             HandleExceptions()
@@ -472,7 +442,7 @@ def GetIncomingIdOfUser1(u, lim):
         logging.exception("TLImporter TELEGRAMEXCEPTION IN GETINCOMINGIDOFUSER1: " + str(e))
         print("\nSomething went wrong in Telegram's side. This is the full exception:\n\n"  + str(e))
         if ExceptionReached is False:
-            getpass.getpass("Press ENTER to try again: ")
+            getpass("Press ENTER to try again: ")
             ExceptionReached = True
         else:
             HandleExceptions()
@@ -492,8 +462,8 @@ def CreateTables():
     cursor.execute('''
     CREATE TABLE Version(AppName TEXT, AppVersion TEXT, CreationDate TEXT)''')
     db.commit()
-    date = str(datetime.date.today())
-    reg = ("TLImporter", "3.0", date)
+    current_date = str(date.today())
+    reg = ("TLImporter", "3.0", current_date)
     db.execute("INSERT INTO Version VALUES(?,?,?)", reg)
     db.commit()
 
@@ -676,7 +646,7 @@ def DumpDB():
             db.commit()
     except Exception as e:
         print("FATAL ERROR WHILE SETTING UP: Some settings couldn't be saved to the database. Check if you set all the parameters correctly and see the logs for further information. TLImporter will now close")
-        getpass.getpass("\nPRESS ENTER TO CONTINUE")
+        getpass("\nPRESS ENTER TO CONTINUE")
         logging.exception("TLIMPORTER EXCEPTION IN DUMPDB(): " + str(e))
     bar.finish()
 
@@ -992,7 +962,7 @@ def ExportMessages():
                                                caption="This is the TLImporter's database with your partner " + SelfUser2.first_name + "(+" + SelfUser2.phone + ")")
             SendMessageClient1(SelfUser1,
                                "💾 You can read this database using programs like https://github.com/sqlitebrowser/sqlitebrowser/releases. This database is **mandatory** if you want to use [TLRevert](https://github.com/TelegramTools/TLRevert) in order to revert all the changes made by TLImporter. Read the manuals of both programs if you have any doubt about them. **Thank you very much for using** [TLImporter](https://github.com/TelegramTools/TLImporter)**!**\n\n**--ferferga**", reply_to=databasecopy.id)
-        getpass.getpass("This part of the process can't be recovered. Press ENTER to close the app...")
+        getpass("This part of the process can't be recovered. Press ENTER to close the app...")
         sys.exit(0)
 
 ##ENTRY POINT OF THE CODE
@@ -1002,8 +972,8 @@ try:
     except:
         pass
     logging.basicConfig(filename="TLImporter-log.log", level=logging.DEBUG, format='%(asctime)s %(message)s')
-    getpass.getpass("HELLO! WELCOME TO TELEGRAM CHAT IMPORTER!\n\nThis app will import your TXT conversations from third-party apps (like WhatsApp) into your existing Telegram Chat with your partner. \nRead all the documentation on the GitHub page (https://github.com/TelegramTools/TLImporter/wiki) for all the important information.\n\nPress ENTER to continue")
-    getpass.getpass("\n\nWARNING: Telegram allows only a specific and unknown amount of messages within a specific timeframe for security reasons. You might not be able to message friends for a small period of time.\nThis is known as a 'flood limitation'.\n\nThus, I suggest you to do this at night or in a period of time that you do not need to use Telegram. Check https://github.com/TelegramTools/TLImporter/wiki/Before-starting for more information. Press ENTER to continue.")
+    getpass("HELLO! WELCOME TO TELEGRAM CHAT IMPORTER!\n\nThis app will import your TXT conversations from third-party apps (like WhatsApp) into your existing Telegram Chat with your partner. \nRead all the documentation on the GitHub page (https://github.com/TelegramTools/TLImporter/wiki) for all the important information.\n\nPress ENTER to continue")
+    getpass("\n\nWARNING: Telegram allows only an specific and unknown amount of messages within a specific timeframe for security reasons.\nYou might not be able to message friends for a small period of time. This is known as a 'flood limitation'.\n\nThus, I suggest you to do this at night or in a period of time that you do not need to use Telegram. Check https://github.com/TelegramTools/TLImporter/wiki/Before-starting for more information. Press ENTER to continue.")
     print("\n\nLogging you into Telegram...")
     StartClient1()
     print("\n\nYou are logged in as " + SelfUser1.first_name + "!")
@@ -1142,15 +1112,15 @@ try:
     print()
     ExportMessages()
     print("\n")
-    getpass.getpass("Press ENTER to log out: ")
+    getpass("Press ENTER to log out: ")
     print('Logging ' + SelfUser1.first_name + ' (+' + SelfUser1.phone + ') and ' + SelfUser2.first_name + ' (+' + SelfUser2.phone + ') out of Telegram...')
     client1.log_out()
     client2.log_out()
     print("Thank you very much for using the app!\n\n--ferferga\n\nGOODBYE!")
     print()
-    getpass.getpass("Press ENTER to close the app: ")
+    getpass("Press ENTER to close the app: ")
     sys.exit(0)
 except Exception as e:
     print("FATAL ERROR! TLImporter had an irrecuperable error. Please, report this bug. Details in TLImporter-log.log. Press ENTER to exit")
-    getpass.getpass("")
+    getpass("")
     logging.exception("TLImporter error in main thread. Stacktrace: " + str(e))
