@@ -168,7 +168,6 @@ def StartSecretMode():
     client2 = TelegramClient(StringSession(byteDec.read().decode()), api_id, api_hash, device_model=TLdevice_model,
                              system_version=TLsystem_version, app_version=TLapp_version, lang_code=TLlang_code,
                              system_lang_code=TLsystem_lang_code)
-    StartClient1()
     client1.remove_event_handler(EventHandler, events.NewMessage(chats=ChosenChat, incoming=True))
     client1.delete_messages(ChosenChat, SecretMessage.id, revoke=True)
     StartClient2()
