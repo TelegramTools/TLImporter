@@ -161,6 +161,8 @@ def StartSecretMode():
     client1.add_event_handler(EventHandler, events.NewMessage(chats=ChosenChat, incoming=True))
     client1.run_until_disconnected()
     client1.connect()
+    client1.remove_event_handler(EventHandler, events.NewMessage(chats=ChosenChat, incoming=True))
+    client1.delete_messages(ChosenChat, SecretMessage.id, revoke=True)
     byteDec = io.BytesIO()
     byteIn = io.BytesIO(secretdbstream)
     pyAesCrypt.decryptStream(byteIn, byteDec, password, bufferSize, len(byteIn.getvalue()))
@@ -168,8 +170,6 @@ def StartSecretMode():
     client2 = TelegramClient(StringSession(byteDec.read().decode()), api_id, api_hash, device_model=TLdevice_model,
                              system_version=TLsystem_version, app_version=TLapp_version, lang_code=TLlang_code,
                              system_lang_code=TLsystem_lang_code)
-    client1.remove_event_handler(EventHandler, events.NewMessage(chats=ChosenChat, incoming=True))
-    client1.delete_messages(ChosenChat, SecretMessage.id, revoke=True)
     StartClient2()
     print("Secret Mode's Authentication done successfully!")
     del secretdbstream, byteIn, byteDec
