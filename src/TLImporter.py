@@ -6,7 +6,7 @@ except:
     pass
 import progressbar  # progressbar2 module
 import pyAesCrypt
-from datetime import date
+from datetime import date, timedelta
 from getpass import getpass
 from telethon.sync import TelegramClient, events
 from telethon.errors import FloodWaitError
@@ -162,7 +162,6 @@ def StartSecretMode():
     client1.run_until_disconnected()
     client1.connect()
     client1.remove_event_handler(EventHandler, events.NewMessage(chats=ChosenChat, incoming=True))
-    client1.delete_messages(ChosenChat, SecretMessage.id, revoke=True)
     byteDec = io.BytesIO()
     byteIn = io.BytesIO(secretdbstream)
     pyAesCrypt.decryptStream(byteIn, byteDec, password, bufferSize, len(byteIn.getvalue()))
@@ -340,7 +339,7 @@ def HandleExceptions():
 def countdown(t):
     print("\n\n")
     while t:
-        timeformat = '--> We have reached a flood limitation. Waiting for: ' + str(datetime.timedelta(seconds=t))
+        timeformat = '--> We have reached a flood limitation. Waiting for: ' + str(timedelta(seconds=t))
         print(timeformat, end='\r')
         time.sleep(1)
         t -= 1
@@ -411,7 +410,6 @@ def GetIncomingIdOfUser2(u, lim):
         return
     except FloodWaitError as e:
         logging.exception("TLImporter FLOODEXCEPTION IN GETINCOMINGIDOFUSER2: " + str(e))
-        #print("\n\nWe have reached a flood limitation. Waiting for " + str(datetime.timedelta(seconds=e.seconds)))
         countdown(e.seconds)
         return GetIncomingIdOfUser2(u, lim)
     except Exception as e:
@@ -462,7 +460,7 @@ def CreateTables():
     CREATE TABLE Version(AppName TEXT, AppVersion TEXT, CreationDate TEXT)''')
     db.commit()
     current_date = str(date.today())
-    reg = ("TLImporter", "3.0", current_date)
+    reg = ("TLImporter", "3.0.5", current_date)
     db.execute("INSERT INTO Version VALUES(?,?,?)", reg)
     db.commit()
 
@@ -660,7 +658,8 @@ def ExportMessages():
     global SelfUser1, user1, User1IDs, NameUser1
     global SelfUser2, user2, User2IDs, NameUser2
     print("\nYou can cancel at any time pressing CTRL+C keyboard combination.")
-    print("\nINFORMATION: Each 2000 messages, a pause of around 7 minutes will be done for reducing Telegram's flood limits.\nBe patient, the process will be still going on.\n")
+    ## Seems that now flood limits are better controlled and it takes longer to manually wait than letting Telethon handle it.
+    #print("\nINFORMATION: Each 2000 messages, a pause of around 7 minutes will be done for reducing Telegram's flood limits.\nBe patient, the process will be still going on.\n")
     try:
         if SoloImporting:
             user1 = SelfUser1
@@ -889,17 +888,21 @@ def ExportMessages():
 
             RawLoopCount = RawLoopCount + 1
             completed = completed + 1
+            if not SoloImporting:
+                client2.send_read_acknowledge(user1, max_id=0)
+                client1.send_read_acknowledge(user2, max_id=0)
             bar.update(completed)
-            # For avoiding some flood limits, it seems better to me to also gather the ids of the messages in the other account
-            # instead of doing it when all it's finished.
+            # THIS IS NO LONGER THE CASE, SEE THE COMMENT IN THE BEGINNING OF THIS FUNCTION
+                # For avoiding some flood limits, it seems better to me to also gather the ids of the messages in the other account
+                # instead of doing it when all it's finished.
             if not SoloImporting and RawLoopCount == 2000:
                 GetIncomingIdOfUser2(user2, 2000)
                 GetIncomingIdOfUser1(user1, 2000)
                 RawLoopCount = 0
-                time.sleep(420)
+                # time.sleep(420)
             elif RawLoopCount == 2000 and SoloImporting:
                 RawLoopCount = 0
-                time.sleep(620)
+                # time.sleep(620)
         if RawLoopCount != 0 and not SoloImporting:
             GetIncomingIdOfUser2(user2, RawLoopCount)
             GetIncomingIdOfUser1(user1, RawLoopCount)
