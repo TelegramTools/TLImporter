@@ -1,11 +1,12 @@
 #!/usr/bin/python3
-import logging, shutil, sqlite3, sys, time, os, io
+import logging, shutil, sqlite3, time, os, io, re
 try:
     import cryptg
 except:
     pass
 import progressbar  # progressbar2 module
 import pyAesCrypt
+from sys import exit
 from datetime import date, timedelta
 from getpass import getpass
 from telethon.sync import TelegramClient, events
@@ -93,10 +94,10 @@ def PrintChatList():
             if i is None:
                 continue
             if i == '!q':
-                sys.exit()
+                exit(0)
             if i == '!l':
                 client1.log_out()
-                sys.exit()
+                exit(0)
         try:
             i = int(i if i else 0) - 1
             # Ensure it is inside the bounds, otherwise retry
@@ -333,7 +334,7 @@ def HandleExceptions():
                                "💾 You can read this database using programs like https://github.com/sqlitebrowser/sqlitebrowser/releases. This database is **mandatory** if you want to use [TLRevert](https://github.com/TelegramTools/TLRevert) in order to revert all the changes made by TLImporter. Read the manuals of both programs if you have any doubt about them. **Thank you very much for using** [TLImporter](https://github.com/TelegramTools/TLImporter)**!**\n\n**--ferferga**",
                                reply_to=databasecopy.id)
         getpass("\n\nYou can close TLImporter by pressing ENTER: ")
-        sys.exit(0)
+        exit(1)
     return
 
 def countdown(t):
@@ -551,114 +552,103 @@ def CheckMessages():
             ValidFile = False
             return
 
+def user_exists_in_line(name_user, l):
+    return l.find(name_user) != -1
+
 def DumpDB():
-    global TotalCount, NameUser1, NameUser2, FilePath, Filename
-    bar = progressbar.ProgressBar(max_value=TotalCount)
+    global NameUser1, NameUser2
+    linecount = 0
+    with open(FilePath, mode="r", encoding="utf-8") as f:
+        for l in f:
+            linecount += 1
+    bar = progressbar.ProgressBar(max_value=linecount)
     bar.start()
     completed = 0
+    pattern = re.compile('\d|\W')
     try:
         with open(FilePath, mode="r", encoding="utf-8") as f:
-            Filename = os.path.basename(FilePath)
             db = DBConnection(False, False)
-            Msg = []
-            User1 = False
-            User2 = False
-            header = None
-            Iterated = False
+            msg = []
+            multilinemsg = False
             for l in f:
+                completed += 1
+                index = None
+                header = ""
+                message = ""
+                # First, we split the message in parts. ': ' seem to be present in every WhatsApp and chat export out there,
+                # so it makes sense to use it
+                splitted = l.split(": ")
+                for key, i in enumerate(splitted):
+                    found_user1 = user_exists_in_line(NameUser1, i)
+                    found_user2 = user_exists_in_line(NameUser2, i)
+                    # We break at first hint because we don't want to match names inside the messages
+                    if found_user1 or found_user2:
+                        index = key
+                        break
+                
+                # Now, we check if what's behind the name are only numbers or non alpha characters. If that's the case,
+                # we discard it as being a new message: it's a multiline message instead (or a copy from another message).
+                # We also reconstruct the header here, except from the last item in the array, because otherwise it would look strange:
+                last_iter = len(splitted[:index])
+                for iter, item in enumerate(splitted[:index]):
+                    if iter+1 == last_iter:
+                        header += item
+                    else:
+                        header += item + ": "
+                    if pattern.match(item):
+                        multilinemsg = False
+                        continue
+                    else:
+                        multilinemsg = True
+                        del header
+                        break                    
 
-                found_user1 = user_exists_in_line(NameUser1, l)
-                found_user2 = user_exists_in_line(NameUser2, l)
-
-                if (found_user1 or found_user2) and Iterated:
-                    if User1:
-                        reg4 = (True, NameUser1, header, Msg[0])
-                    elif User2:
-                        reg4 = (False, NameUser2, header, Msg[0])
-                    db.execute("INSERT INTO ImportedMessages VALUES(?,?,?,?)", reg4)
-                elif Iterated:
-                    Msg[0] = Msg[0] + l
-
-                if l.find("] " + NameUser1 + ":") != -1:
-                    Iterated = True
-                    Msg.clear()
-                    header, msg = l.split("] "+ NameUser1 + ": ")
-                    # the following two lines change it to this format 22/12/19 17:36:46
-                    header = header.translate({ord(i): None for i in '[,'})
-                    header = header.replace(".", "/")
-                    Msg.append(msg)
-                    User1 = True
-                    User2 = False
-                elif l.find("] " + NameUser2 + ":") != -1:
-                    Iterated = True
-                    Msg.clear()
-                    header, msg = l.split("] " + NameUser2 + ": ")
-                    # the following two lines change it to this format 22/12/19 17:36:46
-                    header = header.translate({ord(i): None for i in '[,'})
-                    header = header.replace(".", "/")
-                    Msg.append(msg)
-                    User1 = False
-                    User2 = True
-                if l.find(": " + NameUser1 + ":") != -1:
-                    Iterated = True
-                    Msg.clear()
-                    header, msg = l.split(": " + NameUser1 + ": ")
-                    Msg.append(msg)
-                    User1 = True
-                    User2 = False
-                elif l.find(" - " + NameUser1 + ":") != -1:
-                    Iterated = True
-                    Msg.clear()
-                    header, msg = l.split(" - " + NameUser1 + ": ")
-                    Msg.append(msg)
-                    User1 = True
-                    User2 = False
-                elif l.find(": " + NameUser2 + ":") != -1:
-                    Iterated = True
-                    Msg.clear()
-                    header, msg = l.split(": " + NameUser2 + ": ")
-                    Msg.append(msg)
-                    User1 = False
-                    User2 = True
-                elif l.find(" - " + NameUser2 + ":") != -1:
-                    Iterated = True
-                    Msg.clear()
-                    header, msg = l.split(" - " + NameUser2 + ": ")
-                    Msg.append(msg)
-                    User1 = False
-                    User2 = True
-
-                completed = completed + 1
-                try:
+                # Depending on what's this line, we append the line to the last message or we commit the last one
+                # and start parsing a new one.
+                if multilinemsg:
+                    msg[-1] = msg[-1] + l
                     bar.update(completed)
-                except:
-                    pass
-            if len(Msg) != 0:
-                if User1:
-                    reg4 = (True, NameUser1, header, Msg[0])
-                elif User2:
-                    reg4 = (False, NameUser2, header, Msg[0])
-                db.execute("INSERT INTO ImportedMessages VALUES(?,?,?,?)", reg4)
-            Msg.clear()
+                    continue
+                elif found_user1 or found_user2:
+                    if len(msg) > 0:
+                        reg = (msg[0], msg[1], msg[2], msg[3])
+                        db.execute("INSERT INTO ImportedMessages VALUES(?,?,?,?)", reg)
+                        msg.clear()
+                    if found_user1:
+                        msg.append(True)
+                        msg.append(NameUser1)
+                    elif found_user2:
+                        msg.append(False)
+                        msg.append(NameUser2)
+                    msg.append(header)
+                    # Now, we need to reconstruct any part of the message that has been splitted as well:
+                    for item in splitted[index+1:]:
+                        message += item + ": "
+                    msg.append(splitted[-1])
+                bar.update(completed)
+            bar.finish()
+            # We commit the last message. Before, we check if the last character is a newline, and, if it isn't, we append one, so dates appear correctly
+            if len(msg) > 0:
+                if msg[3][-1] != "\n":
+                    msg[3] += "\n"
+                reg = (msg[0], msg[1], msg[2], msg[3])
+                db.execute("INSERT INTO ImportedMessages VALUES(?,?,?,?)", reg)
+                msg.clear()
             db.commit()
+        del linecount
     except Exception as e:
-        print("FATAL ERROR WHILE SETTING UP: Some settings couldn't be saved to the database. Check if you set all the parameters correctly and see the logs for further information. TLImporter will now close")
-        getpass("\nPRESS ENTER TO CONTINUE")
+        print("\nFATAL ERROR WHILE SETTING UP: Some settings couldn't be saved to the database. Check if you set all the parameters correctly and see the logs for further information. TLImporter will now close")
         logging.exception("TLIMPORTER EXCEPTION IN DUMPDB(): " + str(e))
+        getpass("\nPRESS ENTER TO CONTINUE: ")
+        exit(1)
     bar.finish()
-
-
-def user_exists_in_line(name_user, l):
-    return (l.find("] " + name_user + ":") != -1 or l.find(": " + name_user + ":") != -1 or l.find(
-        " - " + name_user + ":"))
-
 
 def ExportMessages():
     global NoTimestamps, EndDate, TotalCount, RawLoopCount, Filename, FilePath
     global SelfUser1, user1, User1IDs, NameUser1
     global SelfUser2, user2, User2IDs, NameUser2
     print("\nYou can cancel at any time pressing CTRL+C keyboard combination.")
-    ## Seems that now flood limits are better controlled and it takes longer to manually wait than letting Telethon handle it.
+    ## Seems that now flood limits are relaxed and better controlled by Telethon, so it's better to let it handle them.
     #print("\nINFORMATION: Each 2000 messages, a pause of around 7 minutes will be done for reducing Telegram's flood limits.\nBe patient, the process will be still going on.\n")
     try:
         if SoloImporting:
@@ -674,20 +664,29 @@ def ExportMessages():
             except:
                 client2.get_dialogs(limit=None)
                 user1 = client2.get_input_entity(SelfUser1.id)
-        bar = progressbar.ProgressBar(max_value=TotalCount)
+        database = DBConnection(False, False)
+        db = database.cursor()
+        db.execute('SELECT COUNT(*) FROM ImportedMessages')
+        bar = progressbar.ProgressBar(max_value=db.fetchone()[0])
         bar.start()
         completed = 0
-        database = DBConnection(False, False)
         if not SoloImporting:
-            reg1 = (SelfUser1.id, SelfUser2.id, SelfUser1.first_name + " (+" + SelfUser1.phone + ")", SelfUser2.first_name + " (+" + SelfUser2.phone + ")", client1.get_messages(user2, 0).total, client2.get_messages(user1, 0).total, TotalCount, SoloImporting)
-            welcmsg = SendMessageClient1(user2, "📲`IMPORTING THE CHAT WITH` __" + NameUser1 + "__ and __" + NameUser2 + "__ using `" + Filename + "` as source file. __'" + NameUser2 + "'__ is **" + SelfUser2.first_name + "** now.")
+            reg1 = (SelfUser1.id, SelfUser2.id, SelfUser1.first_name + " (+" + SelfUser1.phone + ")", \
+                SelfUser2.first_name + " (+" + SelfUser2.phone + ")", client1.get_messages(user2, 0).total, \
+                    client2.get_messages(user1, 0).total, TotalCount, SoloImporting)
+            welcmsg = SendMessageClient1(user2, "📲`IMPORTING THE CHAT WITH` __" + NameUser1 + "__ and __" + \
+                NameUser2 + "__ using `" + Filename + "` as source file. __'" + NameUser2 + "'__ is **" + \
+                SelfUser2.first_name + "** now and __'" + NameUser1 + "'__ is " + SelfUser1.first_name + "** now.")
         else:
-            reg1 = (SelfUser1.id, None, SelfUser1.first_name + " (+" + SelfUser1.phone + ")", None, client1.get_messages(user1, 0).total, None, TotalCount, SoloImporting)
-            welcmsg = SendMessageClient1(user1, "📲`IMPORTING THE CHAT WITH` __" + NameUser1 + "__ and __" + NameUser2 + "__ using `" + Filename + "` as source file.")
+            reg1 = (SelfUser1.id, None, SelfUser1.first_name + " (+" + SelfUser1.phone + ")", None, client1.get_messages(user1, 0).total, \
+                None, TotalCount, SoloImporting)
+            welcmsg = SendMessageClient1(user1, "📲`IMPORTING THE CHAT WITH` __" + NameUser1 + "__ and __" + \
+                NameUser2 + "__ using `" + Filename + "` as source file.")
         reg2 = (NameUser1, NameUser2, Filename, FilePath, SoloImporting)
-        database.execute("INSERT INTO Statistics VALUES(?,?,?,?,?,?,?,?)", reg1)
-        database.execute("INSERT INTO Settings VALUES(?,?,?,?,?)", reg2)
+        db.execute("INSERT INTO Statistics VALUES(?,?,?,?,?,?,?,?)", reg1)
+        db.execute("INSERT INTO Settings VALUES(?,?,?,?,?)", reg2)
         database.commit()
+        db.close()
         User1IDs.append(welcmsg.id)
         if not SoloImporting:
             GetIncomingIdOfUser1(user1, 1)
@@ -717,7 +716,7 @@ def ExportMessages():
                 else:
                     Sender = None
                 if EndDate:
-                    Date = "`[" + row[2] + "]`"
+                    Date = "[" + row[2] + "]`"
                 elif SoloImporting:
                     Date = "`[" + row[2] + "] " + row[1] + ":`\n"
                 else:
@@ -964,8 +963,8 @@ def ExportMessages():
                                                caption="This is the TLImporter's database with your partner " + SelfUser2.first_name + "(+" + SelfUser2.phone + ")")
             SendMessageClient1(SelfUser1,
                                "💾 You can read this database using programs like https://github.com/sqlitebrowser/sqlitebrowser/releases. This database is **mandatory** if you want to use [TLRevert](https://github.com/TelegramTools/TLRevert) in order to revert all the changes made by TLImporter. Read the manuals of both programs if you have any doubt about them. **Thank you very much for using** [TLImporter](https://github.com/TelegramTools/TLImporter)**!**\n\n**--ferferga**", reply_to=databasecopy.id)
-        getpass("This part of the process can't be recovered. Press ENTER to close the app...")
-        sys.exit(0)
+        getpass("This part of the process can't be recovered. Press ENTER to close the app: ")
+        exit(1)
 
 ##ENTRY POINT OF THE CODE
 try:
@@ -974,8 +973,13 @@ try:
     except:
         pass
     logging.basicConfig(filename="TLImporter-log.log", level=logging.DEBUG, format='%(asctime)s %(message)s')
-    getpass("HELLO! WELCOME TO TELEGRAM CHAT IMPORTER!\n\nThis app will import your TXT conversations from third-party apps (like WhatsApp) into your existing Telegram Chat with your partner. \nRead all the documentation on the GitHub page (https://github.com/TelegramTools/TLImporter/wiki) for all the important information.\n\nPress ENTER to continue")
-    getpass("\n\nWARNING: Telegram allows only an specific and unknown amount of messages within a specific timeframe for security reasons.\nYou might not be able to message friends for a small period of time. This is known as a 'flood limitation'.\n\nThus, I suggest you to do this at night or in a period of time that you do not need to use Telegram. Check https://github.com/TelegramTools/TLImporter/wiki/Before-starting for more information. Press ENTER to continue.")
+    getpass("HELLO! WELCOME TO TELEGRAM CHAT IMPORTER!\n\nThis app will import your TXT conversations from third-party apps (like WhatsApp) " + 
+    "into your existing Telegram Chat with your partner.\nRead all the documentation on the GitHub page " + 
+    "(https://github.com/TelegramTools/TLImporter/wiki) for all the important information.\n\nPress ENTER to continue: ")
+    getpass("\n\nWARNING: Telegram allows only an specific and unknown amount of messages within a specific timeframe for security reasons." + 
+    "\nYou might not be able to message friends for a small period of time. This is known as a 'flood limitation'.\n\nThus, " + 
+    "I suggest you to do this at night or in a period of time that you do not need to use Telegram. " + 
+    "Check https://github.com/TelegramTools/TLImporter/wiki/Before-starting for more information. Press ENTER to continue: ")
     print("\n\nLogging you into Telegram...")
     StartClient1()
     print("\n\nYou are logged in as " + SelfUser1.first_name + "!")
@@ -1041,20 +1045,18 @@ try:
         print("\n\nYou are going to import the conversation in your Telegram's 'Saved Messages' section.")
     while True:
         FilePath = input("""\nIt's time to type the path of the file to import. You can also drag and drop it here to get the full path easily.\n\nPath of the file: """)
-        if FilePath is None:
+        if FilePath is None or FilePath == "":
             print("You have entered a invalid path. Try again.")
             continue
         else:
-            try:
-                FilePath = FilePath.replace('"', "")
-            except:
-                pass
+            FilePath = FilePath.replace('\\', "/").replace('"', "").replace("'", "")
         if not os.path.isfile(FilePath):
             print("You have entered a wrong path, no file could be found. Try again.")
             continue
         else:
             CheckMessages()
             if ValidFile is True:
+                Filename = os.path.basename(FilePath)
                 break
             else:
                 print(NameUser1 + " and " + NameUser2 + " couldn't be found in " + FilePath + ".\n")
@@ -1121,8 +1123,8 @@ try:
     print("Thank you very much for using the app!\n\n--ferferga\n\nGOODBYE!")
     print()
     getpass("Press ENTER to close the app: ")
-    sys.exit(0)
+    exit(0)
 except Exception as e:
-    print("FATAL ERROR! TLImporter had an irrecuperable error. Please, report this bug. Details in TLImporter-log.log. Press ENTER to exit")
+    print("FATAL ERROR! TLImporter had an irrecuperable error. Please, report this bug. Details in TLImporter-log.log. Press ENTER to exit: ")
     getpass("")
     logging.exception("TLImporter error in main thread. Stacktrace: " + str(e))
