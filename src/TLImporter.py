@@ -575,6 +575,7 @@ def DumpDB():
                 index = None
                 header = ""
                 message = ""
+                notfound = True
                 # First, we split the message in parts. ': ' seem to be present in every WhatsApp and chat export out there,
                 # so it makes sense to use it
                 splitted = l.split(": ")
@@ -584,7 +585,10 @@ def DumpDB():
                     # We break at first hint because we don't want to match names inside the messages
                     if found_user1 or found_user2:
                         index = key
+                        notfound = False
                         break
+                if notfound and len(msg) == 0:
+                    continue
                 
                 # Now, we check if what's behind the name are only numbers or non alpha characters. If that's the case,
                 # we discard it as being a new message: it's a multiline message instead (or a copy from another message).
@@ -716,7 +720,7 @@ def ExportMessages():
                 else:
                     Sender = None
                 if EndDate:
-                    Date = "[" + row[2] + "]`"
+                    Date = "`[" + row[2] + "]`"
                 elif SoloImporting:
                     Date = "`[" + row[2] + "] " + row[1] + ":`\n"
                 else:
