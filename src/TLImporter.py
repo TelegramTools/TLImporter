@@ -651,8 +651,7 @@ def ExportMessages():
     global SelfUser1, user1, User1IDs, NameUser1
     global SelfUser2, user2, User2IDs, NameUser2
     print("\nYou can cancel at any time pressing CTRL+C keyboard combination.")
-    ## Seems that now flood limits are relaxed and better controlled by Telethon, so it's better to let it handle them.
-    #print("\nINFORMATION: Each 2000 messages, a pause of around 7 minutes will be done for reducing Telegram's flood limits.\nBe patient, the process will be still going on.\n")
+    print("\nINFORMATION: Each 2000 messages, a pause of around 7 minutes will be done for reducing Telegram's flood limits.\nBe patient, the process will be still going on.\n")
     try:
         if SoloImporting:
             user1 = SelfUser1
@@ -891,19 +890,18 @@ def ExportMessages():
             RawLoopCount = RawLoopCount + 1
             completed = completed + 1
             bar.update(completed)
-            # THIS IS NO LONGER THE CASE, SEE THE COMMENT IN THE BEGINNING OF THIS FUNCTION
-                # For avoiding some flood limits, it seems better to me to also gather the ids of the messages in the other account
-                # instead of doing it when all it's finished.
+            # For avoiding some flood limits, it seems better to me to also gather the ids of the messages in the other account
+            # instead of doing it when all it's finished.
             if not SoloImporting and RawLoopCount == 2000:
                 client2.send_read_acknowledge(user1, max_id=0)
                 client1.send_read_acknowledge(user2, max_id=0)
                 GetIncomingIdOfUser2(user2, 2000)
                 GetIncomingIdOfUser1(user1, 2000)
                 RawLoopCount = 0
-                # time.sleep(420)
+                time.sleep(420)
             elif RawLoopCount == 2000 and SoloImporting:
                 RawLoopCount = 0
-                # time.sleep(620)
+                time.sleep(620)
         if RawLoopCount != 0 and not SoloImporting:
             GetIncomingIdOfUser2(user2, RawLoopCount)
             GetIncomingIdOfUser1(user1, RawLoopCount)
