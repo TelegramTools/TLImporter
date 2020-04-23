@@ -21,7 +21,7 @@ api_id = YOUR_API_ID_HERE
 api_hash = 'YOUR_API_HASH_HERE'
 TLdevice_model = 'Desktop device'
 TLsystem_version = 'Console'
-TLapp_version = '- TLImporter 3.0.5'
+TLapp_version = '- TLImporter 3.0.6'
 TLlang_code = 'en'
 TLsystem_lang_code = 'en'
 SelfUser1 = None
@@ -461,7 +461,7 @@ def CreateTables():
     CREATE TABLE Version(AppName TEXT, AppVersion TEXT, CreationDate TEXT)''')
     db.commit()
     current_date = str(date.today())
-    reg = ("TLImporter", "3.0.5", current_date)
+    reg = ("TLImporter", "3.0.6", current_date)
     db.execute("INSERT INTO Version VALUES(?,?,?)", reg)
     db.commit()
 
