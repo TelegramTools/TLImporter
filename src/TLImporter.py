@@ -11,7 +11,6 @@ from datetime import date, timedelta
 from getpass import getpass
 from telethon.sync import TelegramClient, events
 from telethon.errors import FloodWaitError
-from telethon.crypto import AuthKey
 from telethon.tl.functions.messages import *
 from telethon.tl.types import *
 from telethon.sessions import *
@@ -891,14 +890,13 @@ def ExportMessages():
 
             RawLoopCount = RawLoopCount + 1
             completed = completed + 1
-            if not SoloImporting:
-                client2.send_read_acknowledge(user1, max_id=0)
-                client1.send_read_acknowledge(user2, max_id=0)
             bar.update(completed)
             # THIS IS NO LONGER THE CASE, SEE THE COMMENT IN THE BEGINNING OF THIS FUNCTION
                 # For avoiding some flood limits, it seems better to me to also gather the ids of the messages in the other account
                 # instead of doing it when all it's finished.
             if not SoloImporting and RawLoopCount == 2000:
+                client2.send_read_acknowledge(user1, max_id=0)
+                client1.send_read_acknowledge(user2, max_id=0)
                 GetIncomingIdOfUser2(user2, 2000)
                 GetIncomingIdOfUser1(user1, 2000)
                 RawLoopCount = 0
