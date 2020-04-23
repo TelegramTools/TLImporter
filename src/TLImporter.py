@@ -1045,11 +1045,7 @@ try:
         print("\n\nYou are going to import the conversation in your Telegram's 'Saved Messages' section.")
     while True:
         FilePath = input("""\nIt's time to type the path of the file to import. You can also drag and drop it here to get the full path easily.\n\nPath of the file: """)
-        if FilePath is None or FilePath == "":
-            print("You have entered a invalid path. Try again.")
-            continue
-        else:
-            FilePath = FilePath.replace('\\', "/").replace('"', "").replace("'", "")
+        FilePath = FilePath.replace('\\', "/").replace('"', "").replace("'", "")
         if not os.path.isfile(FilePath):
             print("You have entered a wrong path, no file could be found. Try again.")
             continue
