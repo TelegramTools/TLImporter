@@ -48,7 +48,7 @@ sources using the same password for it to work. You can specify the password use
 
 This couldn't be possible without [Telethon](https://github.com/LonamiWebs/Telethon), and his great creator, [Lonami](https://github.com/Lonami), who always was up to answering questions and helping in development. I'm so grateful for his patience :).
 
-And also without [PyInstaller](https://www.pyinstaller.org/) which I used to build the Windows binaries.
+Thanks to the [PyInstaller](https://www.pyinstaller.org/) team for their great tool, which I used to build the binaries.
 
 Also, huge acknowledgements to Telegram for making such a great messenger!
 
