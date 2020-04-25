@@ -486,8 +486,8 @@ def CommitMessages(database):
     for id1, id2 in zip(User1IDs, User2IDs):
         reg5 = (id1, id2)
         database.execute("INSERT INTO SentMessagesIDs VALUES(?,?)", reg5)
-        User1IDs.pop(id1)
-        User2IDs.pop(id2)
+        User1IDs.remove(id1)
+        User2IDs.remove(id2)
     database.commit()
     if len(User1IDs) != 0:
         for id1 in User1IDs:
