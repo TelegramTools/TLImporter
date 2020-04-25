@@ -29,5 +29,12 @@ also, you can choose between adding timestamps or not, and it's position.
 ([Read this](https://github.com/TelegramTools/TLImporter/wiki/FAQ) for more information)
 - Oh, and talking about Flood Limits! Now, there is a fancy countdown that tells you how much you have to wait when you are flood limited :).
 - Removed the --advanced parameter.
-- Added the new Telegram Tools' "Secret Mode"!: In old versions of TLImporter, you must ask your partner his phone number, his code and his password, and he need to trust you,
-because after giving that data away to you, you could do with it whatever you want. Now, with Telegram Tool's Secret Mode, your partner has the complete control of the login and authentication process.
+- Added the new Telegram Tools' **Secret Mode**!: In old versions of TLImporter, you must ask your partner his phone number,
+his code and his password, and he need to trust you, because after giving that data away to you,
+you could do with it whatever you want. Now, with Telegram Tool's Secret Mode, your partner has the complete control of the login and authentication process.
+
+# Version 3.0.6
+
+- Complete rework of the file parsing logic
+- Upgraded Telegram layer and Telethon version to latest one
+- Upgraded **Secret Mode** with much more security, as everything is now done 100% in RAM, unlike before.
