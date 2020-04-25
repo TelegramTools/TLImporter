@@ -17,12 +17,6 @@ Into this:
 
 ![](/images/ImportedChat.PNG)
 
-## Downloads
-
-You can always find the latest version of the app in the [Releases tab](https://github.com/TelegramTools/TLImporter/releases).
-
-Binaries for Windows are included and bundled as an .exe executable. If you want to use this python script in Mac or Linux, you will be able to, using the compiled binaries under the *bin* folder. Whenever you are running the compiled binary, make sure that you have Python3 installed in your system and also pip. Run this command: `pip install -r requirements.txt` before running the app.
-
 ## How to use?
 
 Easy! Start over [here](https://github.com/TelegramTools/TLImporter/wiki/Getting-your-chats-from-third-party-services) and follow the steps in the guide. You will be a master using the app in seconds!
@@ -30,6 +24,25 @@ Easy! Start over [here](https://github.com/TelegramTools/TLImporter/wiki/Getting
 ## Documentation
 
 You can check the full documentation, examples, building instructions, FAQs and a detailed guide in [the wiki](https://github.com/TelegramTools/TLImporter/wiki)
+
+## Download
+
+You can always grab the latest version heading over the [releases tab](https://github.com/TelegramTools/TLImporter/releases).
+I built binaries for **Windows (64 bits)**, **Linux amd64** and **Linux armhf**
+
+* On **Windows**: Simply double click on the ``.exe`` file
+* On **Linux**: Download the binary, ``cd`` to the folder where the download is located and do ``./TLImporter-xxx``
+
+If you're running other systems (like MacOS), you will need to **build the files from source**.
+
+## Build from sources
+
+Make sure that you replace the ``api_id`` and ``api_hash`` variables in the ``TLImporter.py`` file.
+Read instructions [here](https://core.telegram.org/api/obtaining_api_id) for getting your own from Telegram.
+
+You can't use Secret Mode if one of the sides is still using the binaries: I'm the only holder of the encryption key, so it's more
+difficult for malicious people to compromise them. If you want to use the *Secret Mode*, you must build both TLImporter and TLSecret from
+sources using the same password for it to work.
 
 ## Credits
 
