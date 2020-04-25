@@ -483,18 +483,16 @@ def CommitMessages(database):
         database.commit()
     except:
         pass
-    for id1 in User1IDs:
-        reg5 = (id1, None)
+    for id1, id2 in zip(User1IDs, User2IDs):
+        reg5 = (id1, id2)
         database.execute("INSERT INTO SentMessagesIDs VALUES(?,?)", reg5)
+        User1IDs.pop(id1)
+        User2IDs.pop(id2)
     database.commit()
-    LoopingCount = 0
-    for id1 in User1IDs:
-        if len(User2IDs) != 0:
-            database.execute("UPDATE SentMessagesIDs SET User2={id} WHERE User1={user1id}". \
-                             format(user1id=id1, id=User2IDs.pop(0)))
-            LoopingCount = LoopingCount + 1
-        else:
-            break
+    if len(User1IDs) != 0:
+        for id1 in User1IDs:
+            reg5 = (id1, None)
+            database.execute("INSERT INTO SentMessagesIDs VALUES(?,?)", reg5)
     if len(User2IDs) != 0:
         for id2 in User2IDs:
             reg5 = (None, id2)
