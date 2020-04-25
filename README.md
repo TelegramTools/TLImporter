@@ -31,7 +31,7 @@ You can always grab the latest version heading over the [releases tab](https://g
 I built binaries for **Windows (64 bits)**, **Linux amd64** and **Linux armhf**
 
 * On **Windows**: Simply double click on the ``.exe`` file
-* On **Linux**: Download the binary, ``cd`` to the folder where the download is located and do ``./TLImporter-xxx``
+* On **Linux**: Download the binary, ``cd`` to the folder where the download is located and do ``chmod +x TLImporter-xxx && ./TLImporter-xxx``
 
 If you're running other systems (like MacOS), you will need to **build the files from source**.
 
