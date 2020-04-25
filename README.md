@@ -42,7 +42,7 @@ Read instructions [here](https://core.telegram.org/api/obtaining_api_id) for get
 
 You can't use Secret Mode if one of the sides is still using the binaries: I'm the only holder of the encryption key, so it's more
 difficult for malicious people to compromise them. If you want to use the *Secret Mode*, you must build both TLImporter and TLSecret from
-sources using the same password for it to work.
+sources using the same password for it to work. You can specify the password used for encryption/decryption in the ``password`` variable.
 
 ## Credits
 
