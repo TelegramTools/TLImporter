@@ -16,11 +16,12 @@ from telethon.tl.types import *
 from telethon.sessions import *
 from telethon.utils import get_display_name
 
+__version__ = '3.0.6'
 api_id = YOUR_API_ID_HERE
 api_hash = 'YOUR_API_HASH_HERE'
 TLdevice_model = 'Desktop device'
 TLsystem_version = 'Console'
-TLapp_version = '- TLImporter 3.0.6'
+TLapp_version = '- TLImporter ' + __version__
 TLlang_code = 'en'
 TLsystem_lang_code = 'en'
 SelfUser1 = None
@@ -446,6 +447,7 @@ def GetIncomingIdOfUser1(u, lim):
         return GetIncomingIdOfUser1(u, lim)
 
 def CreateTables():
+    global __version__
     db = DBConnection(False, False)
     cursor = db.cursor()
     cursor.execute('''
@@ -460,7 +462,7 @@ def CreateTables():
     CREATE TABLE Version(AppName TEXT, AppVersion TEXT, CreationDate TEXT)''')
     db.commit()
     current_date = str(date.today())
-    reg = ("TLImporter", "3.0.6", current_date)
+    reg = ("TLImporter", __version__, current_date)
     db.execute("INSERT INTO Version VALUES(?,?,?)", reg)
     db.commit()
 
