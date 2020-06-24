@@ -16,7 +16,7 @@ from telethon.tl.types import *
 from telethon.sessions import *
 from telethon.utils import get_display_name
 
-__version__ = '3.0.6'
+__version__ = '3.0.7'
 api_id = YOUR_API_ID_HERE
 api_hash = 'YOUR_API_HASH_HERE'
 TLdevice_model = 'Desktop device'
@@ -570,6 +570,12 @@ def DumpDB():
             msg = []
             multilinemsg = False
             for l in f:
+                try:
+                    if l == '\n' and len(msg[3]) > 0:
+                        msg[3] = msg[3] + '\n'
+                        continue
+                except IndexError:
+                    pass
                 completed += 1
                 index = None
                 header = ""
@@ -588,6 +594,23 @@ def DumpDB():
                         break
                 if notfound and len(msg) == 0:
                     continue
+
+                if index is not None:
+                    # Do a final check for old formats that WhatsApp doesn't use anymore
+                    if splitted[index] != NameUser1 and splitted[index] != NameUser2:
+                        matches = pattern.findall(splitted[index])
+                        matchedString = ''
+                        for i in matches:
+                            if i != ' ':
+                                matchedString = matchedString + i
+                        if len(matches) > 0:
+                            splitted.insert(0, matchedString)
+                            del matchedString
+                            if found_user1:
+                                splitted[1] = NameUser1
+                            else:
+                                splitted[1] = NameUser2
+                            index = 1
                 
                 # Now, we check if what's behind the name are only numbers or non alpha characters. If that's the case,
                 # we discard it as being a new message: it's a multiline message instead (or a copy from another message).
@@ -614,6 +637,8 @@ def DumpDB():
                     continue
                 elif found_user1 or found_user2:
                     if len(msg) > 0:
+                        if msg[3][-1] != "\n":
+                            msg[3] += "\n"
                         reg = (msg[0], msg[1], msg[2], msg[3])
                         db.execute("INSERT INTO ImportedMessages VALUES(?,?,?,?)", reg)
                         msg.clear()
@@ -717,12 +742,20 @@ def ExportMessages():
                     Sender = "`" + row[1] + ":`\n"
                 else:
                     Sender = None
-                if EndDate:
-                    Date = "`[" + row[2] + "]`"
-                elif SoloImporting:
-                    Date = "`[" + row[2] + "] " + row[1] + ":`\n"
+                if row[2][0] != "[" and row[2][-1] != "]":
+                    if EndDate:
+                        Date = "`[" + row[2] + "]`"
+                    elif SoloImporting:
+                        Date = "`[" + row[2] + "] " + row[1] + ":`\n"
+                    else:
+                        Date = "`[" + row[2] + "]`\n"
                 else:
-                    Date = "`[" + row[2] + "]`\n"
+                    if EndDate:
+                        Date = "`" + row[2] + "`"
+                    elif SoloImporting:
+                        Date = "`" + row[2] + " " + row[1] + ":`\n"
+                    else:
+                        Date = "`" + row[2] + "`\n"
             Message = row[3]
 
             if NoTimestamps:
